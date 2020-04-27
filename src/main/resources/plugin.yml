@@ -1,0 +1,4 @@
+name: DeadByDaylight
+version: @version@
+main: net.ignissak.deadbydaylight.Main
+authors: [iGniSsak]

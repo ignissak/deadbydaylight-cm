@@ -1,0 +1,29 @@
+scoreboard:
+  title: "&c&lDead by Daylight"
+  # Lines
+  # Placeholders:
+  # %dbd_min_players% - min players to start countdown
+  # %dbd_max_players% - max players on server
+  lobby:
+    - ""
+    - "Min. players: &c%dbd_min_players%"
+    - "Players: &c%players%&8/&c%dbd_max_players%"
+    - ""
+  in_game:
+    - ""
+
+items:
+  battery:
+    name: "&a&lBattery &7(right-click to use)"
+    lore:
+      - "&7Click on generator"
+      - "&7to use."
+  flash:
+    name: "&e&lFlash &7(hold to use)"
+    lore:
+      - "&7Hold to use."
+  bandage:
+    name: "&c&lBandage &7(right-click to use)"
+    lore:
+      - "&7Right-click to heal"
+      - "&7yourself."

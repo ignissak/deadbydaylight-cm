@@ -1,43 +1,59 @@
 package net.ignissak.deadbydaylight.game
 
-import net.ignissak.deadbydaylight.Main.Companion.localeManager
-import org.bukkit.ChatColor
+import cz.craftmania.craftcore.spigot.builders.items.ItemBuilder
+import net.ignissak.deadbydaylight.utils.Utils
 import org.bukkit.Material
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-import java.util.stream.Collectors
 
 object ItemManager {
-    val battery: ItemStack
-        get() {
-            val itemStack = ItemStack(Material.REDSTONE, 1)
-            val itemMeta = itemStack.itemMeta
-            itemMeta!!.setDisplayName(ChatColor.translateAlternateColorCodes('&', localeManager!!.localeFile.getString("items.battery.name")))
-            itemMeta.lore = localeManager!!.localeFile.getStringList("items.battery.lore").stream().map { s: String? -> ChatColor.translateAlternateColorCodes('&', s!!) }.collect(Collectors.toList())
-            itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-            itemStack.itemMeta = itemMeta
-            return itemStack
-        }
 
+    val fuel: ItemStack
+        get() = Utils.createHead("fuel", "8847dbf6-6648-47f2-bb4f-667903125a9e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQyYzE5YjQ0MjU0MTM1MWE2YjgxZWViNmNiZWY0MTk2NmZmYjdkYmU0YzEzNmI4N2Y1YmFmOWQxNGEifX19",
+                "§eBaterie §7(klikni pravym)", "", "§7Kliknutím pravym s baterii", "§7na generátor pro vložení.", "")!!
+
+    // TODO: Functionality
     val flash: ItemStack
+        get() = ItemBuilder(Material.FLINT_AND_STEEL, 1)
+                .setName("§9Zapalovač §7(podrž pro použití)")
+                .setLore("", "§7Podržením v ruce", "§7rozvítíš zapalovač.", "")
+                .hideAllFlags()
+                .build()
+
+    // TEST: Functionality
+    val bandage: ItemStack
+        get() = ItemBuilder(Material.PAPER, 1)
+                .setName("§cBandáž §7(klikni pravym)")
+                .setLore("", "§7Kliknutím pravym se", "§7vyléčíš.", "")
+                .hideAllFlags()
+                .build()
+
+    val axe: ItemStack
+        get() = ItemBuilder(Material.IRON_AXE, 1)
+                .setName("§cSekera §7(klikni levym)")
+                .setLore("", "§7Kliknutím levym na", "§7survivora ho zasáhneš.", "")
+                .hideAllFlags()
+                .build()
+
+    val hook: ItemStack
         get() {
-            val itemStack = ItemStack(Material.FLINT_AND_STEEL, 1)
+            val itemStack = ItemBuilder(Material.FISHING_ROD, 1)
+                    .setName("§aPrut §7(klikni pravym)")
+                    .setLore("", "§7Kliknutím pravym vyhodíš", "§7prut, při zasažení survivora", "§7ho přitáhneš k sobě.", "")
+                    .hideAllFlags()
+                    .build()
             val itemMeta = itemStack.itemMeta
-            itemMeta!!.setDisplayName(ChatColor.translateAlternateColorCodes('&', localeManager!!.localeFile.getString("items.flash.name")))
-            itemMeta.lore = localeManager!!.localeFile.getStringList("items.flash.lore").stream().map { s: String? -> ChatColor.translateAlternateColorCodes('&', s!!) }.collect(Collectors.toList())
-            itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+            itemMeta?.isUnbreakable = true
+            itemMeta?.addItemFlags(ItemFlag.HIDE_UNBREAKABLE)
             itemStack.itemMeta = itemMeta
             return itemStack
         }
 
-    val bandage: ItemStack
-        get() {
-            val itemStack = ItemStack(Material.PAPER, 1)
-            val itemMeta = itemStack.itemMeta
-            itemMeta!!.setDisplayName(ChatColor.translateAlternateColorCodes('&', localeManager!!.localeFile.getString("items.bandage.name")))
-            itemMeta.lore = localeManager!!.localeFile.getStringList("items.bandage.lore").stream().map { s: String? -> ChatColor.translateAlternateColorCodes('&', s!!) }.collect(Collectors.toList())
-            itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-            itemStack.itemMeta = itemMeta
-            return itemStack
-        }
+    val role: ItemStack
+        get() = ItemBuilder(Material.FLINT, 1)
+                .setName("§ePreference §7(klikni pravym)")
+                .setLore("", "§7Klikni s itemem pro zobrazení", "§7menu na výběru preference role.", "")
+                .hideAllFlags()
+                .build()
+
 }

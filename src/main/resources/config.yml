@@ -1,34 +1,8 @@
-# Connecting to database to store player data
-database:
-  # Available: SQLite/MySQL
-  type: MySQL
-  connection:
-    hostname: localhost
-    port: 3306
-    username: username
-    database: database
-    password: password
-  table_name: 'dbd_players'
-
-# You can see available locales in '/lang' folder
-# Default locale will be used if submitted locale is not available or not complete (en_GB)
-locale: "en_GB"
-
-# General game settings
-game:
-  countdowns:
-    # Countdown that will count when minimal amount of players is on server
-    to_start: 30
-    # Countdown will decrease to this value if server is full (only when is higher)
-    full: 10
-  cooldowns:
-    # Unit: seconds
-    # Cooldown after which killer will get axe after hitting a survivor
-    axe: 5
-    # Cooldown after which killer get hook after hooking a survivor
-    hook: 10
-    # Cooldown after which survivor can use another bandage after using one
-    bandage: 2
-  generator:
-    # Amount of batteries generator will need to turn on
-    needed_batteries: 4
+locations:
+  lobby: world;x;y;z;yaw;pitch
+  dumb: world;x;y;z;yaw;pitch
+  killer: []
+  survivor: []
+  generators: []
+  chests: []
+  drops: []

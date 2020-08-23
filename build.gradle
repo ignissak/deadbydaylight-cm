@@ -1,24 +1,37 @@
 buildscript {
-    ext.kotlin_version = '1.3.72'
+    ext.kotlin_version = '1.4.0'
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: 'idea'
+apply plugin: 'com.github.johnrengelman.shadow'
 
-group = pluginGroup
-version = pluginVersion
+group = 'net.ignissak.deadbydaylight'
+version = '1.0.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
+idea {
+    module {
+        testSourceDirs += file('src/integration-test/java')
+        testSourceDirs += file('src/integration-test/resources')
+    }
+}
+
 repositories {
     mavenCentral()
+    mavenLocal()
+    flatDir { dirs 'libs' }
     maven {
         name = 'spigotmc-repo'
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
@@ -31,22 +44,39 @@ repositories {
         name = 'jitpack.io'
         url = 'https://jitpack.io'
     }
+    maven {
+        name = 'craftmania.cz'
+        url = 'https://packages.craftmania.cz/repository/craftmania/'
+    }
+    maven {
+        name = 'codemc-repo'
+        url = 'https://repo.codemc.io/repository/maven-public/'
+    }
+    maven { url = "https://maven.enginehub.org/repo/" }
+    maven { url = "https://mvn.intellectualsites.com/content/repositories/releases/" } // FAWE
+    maven { url = "https://repo.citizensnpcs.co" }
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
-    compile group: 'com.zaxxer', name: 'HikariCP', version:'3.3.1'
-    compileOnly 'org.jetbrains:annotations:18.0.0'
-    compile group: 'com.github.Carleslc', name: 'Simple-YAML', version: '1.3'
+    // Core
+    compileOnly 'org.spigotmc:spigot:1.15.2-R0.1-SNAPSHOT'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-}
 
-import org.apache.tools.ant.filters.ReplaceTokens
-
-processResources {
-    from(sourceSets.main.resources.srcDirs) {
-        filter ReplaceTokens, tokens: [version: version]
+    // CraftMania
+    compileOnly 'cz.craftmania.craftcore:craftcore:2.2.7'
+    compileOnly 'cz.craftmania.craftlibs:craftlibs:1.1.2'
+    compileOnly('cz.craftmania.crafteconomy:crafteconomy:1.3.6') {
+        exclude group: 'co.aikar', module: 'acf-paper'
     }
+
+    // Libraries
+    compileOnly 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.4'
+    compileOnly 'net.minecord:xoreboardutil:1.14.4'
+    compileOnly 'net.citizensnpcs:citizens:2.0.27-SNAPSHOT'
+
+    // WE & WG
+    compileOnly('com.sk89q.worldguard:worldguard-bukkit:7.0.3')
+    compileOnly "com.sk89q.worldedit:worldedit-bukkit:7.0.4-SNAPSHOT"
 }
 
 compileKotlin {
@@ -58,4 +88,8 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+shadowJar {
+    archiveName = "DeadByDaylight.jar"
 }

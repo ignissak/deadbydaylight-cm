@@ -1,4 +1,16 @@
 name: DeadByDaylight
-version: @version@
-main: net.ignissak.deadbydaylight.Main
+version: 1.0.0
+api-version: "1.15"
+main: net.ignissak.deadbydaylight.DeadByDaylight
 authors: [iGniSsak]
+load: "POSTWORLD"
+depend: ["CraftCore", "CraftLibs", "CraftEconomy", "WorldGuard", "XoreBoardUtil", "HolographicDisplays", "Citizens"]
+commands:
+  forcestart: {}
+  role: {}
+  setlobby: {}
+  addkillerspawn: {}
+  addsurvivorspawn: {}
+  adddrop: {}
+  addgenerator: {}
+  addlootchest: {}

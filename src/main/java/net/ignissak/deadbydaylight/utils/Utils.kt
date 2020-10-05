@@ -138,10 +138,10 @@ fun Int.remainingTo(int: Int): Int {
 
 fun NPC.hide() {
     this.teleport(DeadByDaylight.gameManager.dumpLocation, PlayerTeleportEvent.TeleportCause.PLUGIN)
-    Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance?.let { it1 -> it.hidePlayer(it1, this.entity as Player) } }
+    Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance.let { it1 -> it.hidePlayer(it1, this.entity as Player) } }
 }
 
 fun NPC.show(location: Location) {
     this.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN)
-    Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance?.let { it1 -> it.showPlayer(it1, this.entity as Player) } }
+    Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance.let { it1 -> it.showPlayer(it1, this.entity as Player) } }
 }

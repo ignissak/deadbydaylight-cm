@@ -7,12 +7,12 @@ import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.interfaces.GameState
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
+import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
 import net.ignissak.deadbydaylight.utils.getGamePlayer
 import net.ignissak.deadbydaylight.utils.getPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Animals
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Monster
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -39,8 +39,8 @@ class GeneralListener : Listener {
                 player.teleport(event.from)
                 return
             }
-        } else if (gamePlayer.isSurvivor()) {
-            if ((gamePlayer as Survivor).playerState == SurvivalState.DYING) {
+        } else if (gamePlayer is Survivor) {
+            if (gamePlayer.survivalState == SurvivalState.DYING) {
                 player.teleport(event.from)
                 return
             }
@@ -60,12 +60,12 @@ class GeneralListener : Listener {
 
         val craftPlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(event.player) ?: return
 
-        if (craftPlayer.isKiller()) {
+        if (craftPlayer is Killer) {
             event.isCancelled = true
             ChatInfo.error(event.player, "Survivoři ti nerozumí.")
         } else {
             PlayerManager.survivorTeam.entries.forEach { it.getPlayer()?.sendMessage(String.format("§c${event.player.name}§8: §7%2\$s", event.player, event.message)) }
-            DeadByDaylight.instance?.logger?.info(String.format("§c${event.player.name}§8: §7%2\$s", event.player, event.message))
+            DeadByDaylight.instance.logger.info(String.format("§c${event.player.name}§8: §7%2\$s", event.player, event.message))
 
             event.isCancelled = true
         }

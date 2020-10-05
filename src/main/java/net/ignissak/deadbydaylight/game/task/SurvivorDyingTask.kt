@@ -6,10 +6,7 @@ import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Survivor
 import net.ignissak.deadbydaylight.utils.getKiller
-import org.bukkit.Bukkit
 import org.bukkit.Color
-import org.bukkit.Material
-import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 
 class SurvivorDyingTask(private val survivor: Survivor) : BukkitRunnable() {
@@ -17,7 +14,7 @@ class SurvivorDyingTask(private val survivor: Survivor) : BukkitRunnable() {
     private var remainingTime: Int = 20
 
     override fun run() {
-        if (survivor.playerState != SurvivalState.DYING) this.cancel()
+        if (survivor.survivalState != SurvivalState.DYING) this.cancel()
         /*if (!DeadByDaylight.playerManager.isAnySurvivorAlive()) {
             survivor.die()
             this.cancel()

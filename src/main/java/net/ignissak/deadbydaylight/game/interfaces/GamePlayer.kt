@@ -72,16 +72,18 @@ abstract class GamePlayer(val player: Player) {
     abstract fun giveStartingItems()
     abstract fun giveStartingPotionEffects()
 
+    @Deprecated("Directly check instance with 'is' keyword.", ReplaceWith("this is Survivor", "net.ignissak.deadbydaylight.game.modules.Survivor"), DeprecationLevel.ERROR)
     fun isSurvivor(): Boolean = this is Survivor
+    @Deprecated("Directly check instance with 'is' keyword.", ReplaceWith("this is Killer", "net.ignissak.deadbydaylight.game.modules.Killer"), DeprecationLevel.ERROR)
     fun isKiller(): Boolean = this is Killer
     fun isAssignedToTeam(): Boolean = PlayerManager.killerTeam.entries.contains(player.name) || PlayerManager.survivorTeam.entries.contains(player.name)
 
     fun hideFromOthers() {
-        Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance?.let { it1 -> it.hidePlayer(it1, this.player) } }
+        Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance.let { it1 -> it.hidePlayer(it1, this.player) } }
     }
 
     fun showToOthers() {
-        Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance?.let { it1 -> it.showPlayer(it1, this.player) } }
+        Bukkit.getOnlinePlayers().forEach { DeadByDaylight.instance.let { it1 -> it.showPlayer(it1, this.player) } }
     }
 
     fun giveCoins() {

@@ -76,8 +76,6 @@ class DeadByDaylight : JavaPlugin() {
         saveConfig()
 
         Bukkit.getOnlinePlayers().forEach { it.kickPlayer("§cTento server se uzavřel.") }
-
-        instance = null
     }
 
     private fun registerListeners() {
@@ -90,8 +88,7 @@ class DeadByDaylight : JavaPlugin() {
     }
 
     companion object {
-        var instance: DeadByDaylight? = null
-            private set
+        lateinit var instance: DeadByDaylight
         lateinit var gameManager: GameManager
         lateinit var playerManager: PlayerManager
         lateinit var boardManager: BoardManager

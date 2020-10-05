@@ -7,7 +7,6 @@ package net.ignissak.deadbydaylight.game
 
 
 import cz.craftmania.craftcore.spigot.messages.Title
-import net.citizensnpcs.api.npc.NPC
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.api.event.GameStartEvent
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
@@ -44,10 +43,10 @@ class GameManager {
     // TODO: Functionality
     var drops: MutableList<Location> = mutableListOf()
 
-    var lobbyLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance?.config?.getString("locations.lobby"))
+    var lobbyLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.lobby"))
     var survivorLocations: MutableList<Location> = mutableListOf()
     var killerLocations: MutableList<Location> = mutableListOf()
-    var dumpLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance?.config?.getString("locations.dumb"))
+    var dumpLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.dumb"))
 
     val revivingTasks: MutableList<SurvivorRevivingSurvivorTask> = mutableListOf()
 
@@ -55,17 +54,17 @@ class GameManager {
     init {
         this.clearEntities()
 
-        DeadByDaylight.instance?.config?.getStringList("locations.survivor")?.forEach {
+        DeadByDaylight.instance.config.getStringList("locations.survivor").forEach {
             LocationUtils.parseLocation(it, true)?.let { it1 -> survivorLocations.add(it1) }
         }
         Log.info("Registered ${survivorLocations.size} survivor spawn locations.")
 
-        DeadByDaylight.instance?.config?.getStringList("locations.killer")?.forEach {
+        DeadByDaylight.instance.config.getStringList("locations.killer").forEach {
             LocationUtils.parseLocation(it, true)?.let { it1 -> killerLocations.add(it1) }
         }
         Log.info("Registered ${survivorLocations.size} killer spawn locations.")
 
-        DeadByDaylight.instance?.config?.getStringList("locations.chests")?.forEach {
+        DeadByDaylight.instance.config.getStringList("locations.chests").forEach {
             LocationUtils.parseLocation(it, false)?.let { it1 -> LootChest(it1) }?.let { it2 -> lootChests.add(it2) }
         }
         Log.info("Registered ${lootChests.size} loot chests.")
@@ -73,7 +72,7 @@ class GameManager {
             Log.warning("There are less than 15 loot chests, plugin may misbehave.")
         }
 
-        DeadByDaylight.instance?.config?.getStringList("locations.generators")?.forEach {
+        DeadByDaylight.instance.config.getStringList("locations.generators").forEach {
             LocationUtils.parseLocation(it, false)?.let { it1 -> Generator(it1) }?.let { it2 -> generators.add(it2) }
         }
         Log.info("Registered ${generators.size} generators.")
@@ -81,7 +80,7 @@ class GameManager {
             Log.warning("There are less than 10 generators, plugin may misbehave.")
         }
 
-        DeadByDaylight.instance?.config?.getStringList("locations.drops")?.forEach {
+        DeadByDaylight.instance.config.getStringList("locations.drops").forEach {
             LocationUtils.parseLocation(it, false)?.let { it1 -> drops.add(it1) }
         }
         Log.info("Registered ${drops.size} drops.")
@@ -99,7 +98,7 @@ class GameManager {
     private fun startCountdown() {
         this.gameState = GameState.STARTING
 
-        DeadByDaylight.instance?.let { DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(it, 0L, 20L) }
+        DeadByDaylight.instance.let { DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(it, 0L, 20L) }
 
         val run: BukkitRunnable = object : BukkitRunnable() {
             override fun run() {
@@ -129,7 +128,7 @@ class GameManager {
                 countdown--
             }
         }
-        DeadByDaylight.instance?.let { run.runTaskTimer(it, 0L, 20L) }
+        DeadByDaylight.instance.let { run.runTaskTimer(it, 0L, 20L) }
     }
 
     fun forceStart() {
@@ -224,7 +223,7 @@ class GameManager {
                 if (countdown == 0) {
                     // TEST: Start
                     Bukkit.getPluginManager().callEvent(GameStartEvent())
-                    DeadByDaylight.instance?.let { DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(it, 0, 20) }
+                    DeadByDaylight.instance.let { DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(it, 0, 20) }
 
                     isDisabledMoving = false
                     Title("§c§lHRA ZAČÍNÁ", "§7Hodně štěstí!", 0, 60, 20).broadcast()
@@ -253,7 +252,7 @@ class GameManager {
                 countdown--
             }
         }
-        DeadByDaylight.instance?.let { run.runTaskTimer(it, 0L, 20L) }
+        DeadByDaylight.instance.let { run.runTaskTimer(it, 0L, 20L) }
     }
 
     // TEST
@@ -311,7 +310,7 @@ class GameManager {
 
     fun tryEnd() {
         // TEST
-        if (PlayerManager.survivorTeam.entries.stream().allMatch{ it.getSurvivor()?.playerState == SurvivalState.SPECTATING || it.getSurvivor()?.playerState == SurvivalState.DYING} || PlayerManager.survivorTeam.entries.size == 0 || PlayerManager.killerTeam.entries.size == 0) {
+        if (PlayerManager.survivorTeam.entries.stream().allMatch{ it.getSurvivor()?.survivalState == SurvivalState.SPECTATING || it.getSurvivor()?.survivalState == SurvivalState.DYING} || PlayerManager.survivorTeam.entries.size == 0 || PlayerManager.killerTeam.entries.size == 0) {
             endGame()
         }
     }
@@ -348,7 +347,7 @@ class GameManager {
 
         Utils.broadcast(true, "Za 15 sekund se restartuje server.")
 
-        DeadByDaylight.instance?.let { Bukkit.getScheduler().runTaskLater(it, this::shutDown, 15 * 20) }
+        DeadByDaylight.instance.let { Bukkit.getScheduler().runTaskLater(it, this::shutDown, 15 * 20) }
     }
 
     private fun shutDown() {

@@ -11,6 +11,7 @@ import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.task.SurvivorDyingTask
+import net.ignissak.deadbydaylight.game.task.SurvivorFlashTask
 import net.ignissak.deadbydaylight.utils.*
 import org.bukkit.*
 import org.bukkit.entity.EntityType
@@ -20,13 +21,16 @@ import org.bukkit.potion.PotionEffectType
 
 class Survivor(player: Player) : GamePlayer(player) {
 
-    var playerState: SurvivalState = SurvivalState.PLAYING
+    var survivalState: SurvivalState = SurvivalState.PLAYING
     private var survivorDyingTask: SurvivorDyingTask = SurvivorDyingTask(this)
+    private var survivorFlashTask: SurvivorFlashTask = SurvivorFlashTask(this)
+
     var previousLocation: Location? = null
-    val npc: NPC = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "corpse-${player.name}")
     var endedAt: Long? = null
     var revivedPlayers: Int = 0
     var healing: Boolean = false
+
+    val npc: NPC = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "corpse-${player.name}")
 
     init {
         npc.data().remove(NPC.PLAYER_SKIN_UUID_METADATA)
@@ -83,7 +87,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         killer.gameStats.killer_downs += 1
         killer.playerDowns += 1
 
-        this.playerState = SurvivalState.DYING
+        this.survivalState = SurvivalState.DYING
 
         player.allowFlight = true
         player.isFlying = true
@@ -106,7 +110,7 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         this.hideFromOthers()
 
-        DeadByDaylight.instance?.let { this.survivorDyingTask.runTaskTimer(it, 0, 20) }
+        DeadByDaylight.instance.let { this.survivorDyingTask.runTaskTimer(it, 0, 20) }
 
         // Teleport above corpse
         val locToTeleport = player.location.clone().add(.0, 1.0, .0)
@@ -136,7 +140,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         // TODO: Implement
         killer.gameStats.killer_kills += 1
         killer.playerKills += 1
-        this.playerState = SurvivalState.SPECTATING
+        this.survivalState = SurvivalState.SPECTATING
 
         Title("§c§lGAME OVER", "Tady pro tebe hra končí.", 10, 60, 10).send(player)
 
@@ -182,13 +186,31 @@ class Survivor(player: Player) : GamePlayer(player) {
         Title(title, "", 0, 20, 5).send(player)
     }
 
-    private fun giveSpeed() {
-        player.removePotionEffect(PotionEffectType.BLINDNESS)
-        player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 80, 4, false, false, false))
-
-        DeadByDaylight.instance?.let { Bukkit.getScheduler().runTaskLater(it, Runnable {
-            player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))
-        }, 80) }
+    fun giveBlindness() {
+        player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))
     }
 
+    fun giveSpeed() {
+        player.removePotionEffect(PotionEffectType.BLINDNESS)
+        player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 80,4, false, false, false))
+
+        Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
+            player.removePotionEffect(PotionEffectType.SPEED)
+            if (this.survivalState == SurvivalState.PLAYING)
+                this.giveBlindness()
+        }, 80)
+    }
+
+    fun removePotionEffects() {
+        player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
+    }
+
+    fun light() {
+        player.removePotionEffect(PotionEffectType.BLINDNESS)
+    }
+
+    fun holdingFlash() {
+        this.survivorFlashTask = SurvivorFlashTask(this)
+        this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 4)
+    }
 }

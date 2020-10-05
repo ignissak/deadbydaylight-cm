@@ -5,7 +5,7 @@ import com.sk89q.worldedit.bukkit.BukkitWorld
 import net.ignissak.deadbydaylight.DeadByDaylight
 import org.bukkit.Location
 
-enum class GameRegion(val regionNames: Array<String>) {
+enum class GameRegion(val regionNames: Array<String>, val title: String, val isGate: Boolean) {
 
     ;
     // TODO

@@ -86,11 +86,11 @@ class PlayerManager {
 
     fun areTeamsFilled(): Boolean = killerTeam.entries.size == 1 && survivorTeam.entries.size == 4
 
-    fun isAnySurvivorAlive(): Boolean = survivorTeam.entries.stream().anyMatch { it.getSurvivor()?.playerState == SurvivalState.PLAYING }
+    fun isAnySurvivorAlive(): Boolean = survivorTeam.entries.stream().anyMatch { it.getSurvivor()?.survivalState == SurvivalState.PLAYING }
 
-    fun isAnySurvivorDying(): Boolean = survivorTeam.entries.stream().anyMatch { it.getSurvivor()?.playerState == SurvivalState.DYING }
+    fun isAnySurvivorDying(): Boolean = survivorTeam.entries.stream().anyMatch { it.getSurvivor()?.survivalState == SurvivalState.DYING }
 
-    fun getSurvivorsDying(): MutableList<Survivor>? = survivorTeam.entries.stream().filter{ it.getSurvivor()?.playerState == SurvivalState.DYING }.map { it.getSurvivor() }.collect(Collectors.toList())
+    fun getSurvivorsDying(): MutableList<Survivor>? = survivorTeam.entries.stream().filter{ it.getSurvivor()?.survivalState == SurvivalState.DYING }.map { it.getSurvivor() }.collect(Collectors.toList())
 
     companion object {
         val players: LinkedHashMap<String, GamePlayer> = linkedMapOf()

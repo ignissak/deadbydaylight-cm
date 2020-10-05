@@ -37,36 +37,36 @@ class AdminCommands : CommandExecutor {
             }
             "setlobby" -> {
                 DeadByDaylight.gameManager.lobbyLocation = sender.location
-                DeadByDaylight.instance?.config?.set("locations.lobby", LocationUtils.formatLocation(sender.location))
+                DeadByDaylight.instance.config.set("locations.lobby", LocationUtils.formatLocation(sender.location))
                 ChatInfo.success(sender, "Byla změnena poloha lobby.")
             }
             "addkillerspawn" -> {
                 DeadByDaylight.gameManager.killerLocations.add(sender.location)
-                DeadByDaylight.instance?.config?.set("locations.killer", DeadByDaylight.gameManager.killerLocations.stream().map { LocationUtils.formatLocation(it) }.collect(Collectors.toList()))
+                DeadByDaylight.instance.config.set("locations.killer", DeadByDaylight.gameManager.killerLocations.stream().map { LocationUtils.formatLocation(it) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána spawn lokace pro killera.")
             }
             "addsurvivorspawn" -> {
                 DeadByDaylight.gameManager.survivorLocations.add(sender.location)
-                DeadByDaylight.instance?.config?.set("locations.survivor", DeadByDaylight.gameManager.survivorLocations.stream().map { LocationUtils.formatLocation(it) }.collect(Collectors.toList()))
+                DeadByDaylight.instance.config.set("locations.survivor", DeadByDaylight.gameManager.survivorLocations.stream().map { LocationUtils.formatLocation(it) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána spawn lokace pro survivora.")
             }
             "adddrop" -> {
                 DeadByDaylight.gameManager.drops.add(sender.location)
-                DeadByDaylight.instance?.config?.set("locations.drops", DeadByDaylight.gameManager.drops.stream().map { LocationUtils.formatLocation(it, false) }.collect(Collectors.toList()))
+                DeadByDaylight.instance.config.set("locations.drops", DeadByDaylight.gameManager.drops.stream().map { LocationUtils.formatLocation(it, false) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána spawn lokace pro drop.")
             }
             "addgenerator" -> {
                 val targetBlock: Block = sender.getTargetBlock(null, 5)
                 println(targetBlock.toString())
                 DeadByDaylight.gameManager.generators.add(Generator(targetBlock.location))
-                DeadByDaylight.instance?.config?.set("locations.generators", DeadByDaylight.gameManager.generators.stream().map { LocationUtils.formatLocation(it.location, false) }.collect(Collectors.toList()))
+                DeadByDaylight.instance.config.set("locations.generators", DeadByDaylight.gameManager.generators.stream().map { LocationUtils.formatLocation(it.location, false) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána lokace generátoru.")
             }
             "addlootchest" -> {
                 val targetBlock: Block = sender.getTargetBlock(null, 5)
                 println(targetBlock.toString())
                 DeadByDaylight.gameManager.lootChests.add(LootChest(targetBlock.location))
-                DeadByDaylight.instance?.config?.set("locations.chests", DeadByDaylight.gameManager.lootChests.stream().map { LocationUtils.formatLocation(it.location, false) }.collect(Collectors.toList()))
+                DeadByDaylight.instance.config.set("locations.chests", DeadByDaylight.gameManager.lootChests.stream().map { LocationUtils.formatLocation(it.location, false) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána lokace loot chestky.")
             }
         }

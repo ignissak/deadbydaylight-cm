@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
+import java.lang.Exception
 
 
 class GameListener : Listener {
@@ -61,20 +62,19 @@ class GameListener : Listener {
             // Ignore full health survivor
             if (player.health >= 4.0) return
 
-            val survivor = gamePlayer
             // Survivor is already healing
-            if (survivor.healing) return
+            if (gamePlayer.healing) return
 
-            survivor.showHealthTitle()
-            survivor.healing = true
+            gamePlayer.showHealthTitle()
+            gamePlayer.healing = true
 
             DeadByDaylight.instance.let {
                 Bukkit.getScheduler().runTaskLater(it, Runnable {
                     player.health += 1.0
                     player.inventory.setItem(1, null)
 
-                    survivor.showHealthTitle()
-                    survivor.healing = false
+                    gamePlayer.showHealthTitle()
+                    gamePlayer.healing = false
                 }, 10)
             }
 
@@ -148,7 +148,6 @@ class GameListener : Listener {
         val gamePlayer = DeadByDaylight.playerManager.getGamePlayer(player) ?: return
 
         if (gamePlayer !is Killer) return
-        val killer = gamePlayer
 
         val caughtPlayer: Player = event.hitEntity as Player
         val caughtGamePlayer = DeadByDaylight.playerManager.getGamePlayer(caughtPlayer) ?: return
@@ -157,16 +156,16 @@ class GameListener : Listener {
         val survivor: Survivor = caughtGamePlayer
         // Player caught
 
-        killer.player.inventory.setItem(1, null)
-        Title("§c§lCooldown", "§f6 sekund", 10, 20, 10).send(killer.player)
+        gamePlayer.player.inventory.setItem(1, null)
+        Title("§c§lCooldown", "§f6 sekund", 10, 20, 10).send(gamePlayer.player)
 
         DeadByDaylight.instance.let {
             Bukkit.getScheduler().runTaskLater(it, Runnable {
-                killer.player.inventory.setItem(1, ItemManager.hook)
+                gamePlayer.player.inventory.setItem(1, ItemManager.hook)
             }, 120)
         }
 
-        survivor.hook(killer)
+        survivor.hook(gamePlayer)
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -195,7 +194,7 @@ class GameListener : Listener {
         }
         val player: Player = event.entity as Player
         val gamePlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(player) ?: return
-        if (!(gamePlayer is Survivor)) {
+        if (gamePlayer !is Survivor) {
             event.isCancelled = true
             return
         }
@@ -314,15 +313,14 @@ class GameListener : Listener {
         val gamePlayer: GamePlayer = player.getGamePlayer() ?: return
         if (gamePlayer !is Survivor) return
 
-        val survivor = gamePlayer
-        if (survivor.survivalState != SurvivalState.PLAYING) return
+        if (gamePlayer.survivalState != SurvivalState.PLAYING) return
         if (!DeadByDaylight.playerManager.isAnySurvivorDying()) return
         val survivorsDying = DeadByDaylight.playerManager.getSurvivorsDying() ?: return
 
-        if (survivorsDying.stream().anyMatch { it.previousLocation?.distance(survivor.player.location)!! < 1 }) {
-            val survivorToRevive = survivorsDying.stream().filter { it.player.location.distance(survivor.player.location) < 1 }.findFirst().get()
+        if (survivorsDying.stream().anyMatch { it.previousLocation?.distance(gamePlayer.player.location)!! < 1 }) {
+            val survivorToRevive = survivorsDying.stream().filter { it.player.location.distance(gamePlayer.player.location) < 1 }.findFirst().get()
 
-            val survivorRevivingSurvivorTask = SurvivorRevivingSurvivorTask(survivor, survivorToRevive)
+            val survivorRevivingSurvivorTask = SurvivorRevivingSurvivorTask(gamePlayer, survivorToRevive)
             DeadByDaylight.instance.let { survivorRevivingSurvivorTask.runTaskTimer(it, 0, 10) }
         }
     }
@@ -341,5 +339,20 @@ class GameListener : Listener {
         val gamePlayer = player.getGamePlayer() ?: return
 
         if (gamePlayer !is Survivor) return
+        val newItem = player.inventory.getItem(event.newSlot)
+        if (newItem == null) {
+            try {
+                gamePlayer.giveBlindness()
+                gamePlayer.survivorFlashTask.cancel()
+            } catch (e: Exception) {
+                if (e is java.lang.IllegalStateException) return
+                e.printStackTrace()
+            }
+        } else {
+            if (player.inventory.getItem(event.newSlot)!!.isSimilar(ItemManager.flash)) {
+                gamePlayer.holdingFlash()
+            }
+        }
     }
+
 }

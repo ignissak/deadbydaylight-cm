@@ -22,8 +22,8 @@ import org.bukkit.potion.PotionEffectType
 class Survivor(player: Player) : GamePlayer(player) {
 
     var survivalState: SurvivalState = SurvivalState.PLAYING
-    private var survivorDyingTask: SurvivorDyingTask = SurvivorDyingTask(this)
-    private var survivorFlashTask: SurvivorFlashTask = SurvivorFlashTask(this)
+    var survivorDyingTask: SurvivorDyingTask = SurvivorDyingTask(this)
+    var survivorFlashTask: SurvivorFlashTask = SurvivorFlashTask(this)
 
     var previousLocation: Location? = null
     var endedAt: Long? = null

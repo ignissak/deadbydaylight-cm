@@ -37,7 +37,7 @@ class AdminCommands : CommandExecutor {
             }
             "setlobby" -> {
                 DeadByDaylight.gameManager.lobbyLocation = sender.location
-                DeadByDaylight.instance.config.set("locations.lobby", LocationUtils.formatLocation(sender.location))
+                DeadByDaylight.instance.config.set("locations.lobby", LocationUtils.formatLocation(sender.location, true))
                 ChatInfo.success(sender, "Byla změnena poloha lobby.")
             }
             "addkillerspawn" -> {

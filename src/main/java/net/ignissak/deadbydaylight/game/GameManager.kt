@@ -16,6 +16,7 @@ import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Generator
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.LootChest
+import net.ignissak.deadbydaylight.game.task.LocationTask
 import net.ignissak.deadbydaylight.game.task.RunningGeneratorTask
 import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
 import net.ignissak.deadbydaylight.utils.*
@@ -49,6 +50,8 @@ class GameManager {
     var dumpLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.dumb"))
 
     val revivingTasks: MutableList<SurvivorRevivingSurvivorTask> = mutableListOf()
+
+    var locationTask: LocationTask = LocationTask()
 
     // Loading locations for loot chests, generators and drops
     init {
@@ -237,6 +240,8 @@ class GameManager {
                     Bukkit.getOnlinePlayers().forEach {
                         it.level = 0
                     }
+
+                    locationTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
 
                     this.cancel()
                     return

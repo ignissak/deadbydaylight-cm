@@ -83,6 +83,8 @@ class GameListener : Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onBlockClick(event: PlayerInteractEvent) {
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME) return
+
         println(event.action)
         println(event.clickedBlock)
 
@@ -113,7 +115,7 @@ class GameListener : Listener {
                     event.isCancelled = true
                 }
                 // Click on generator
-                Material.FURNACE -> {
+                Material.BLAST_FURNACE -> {
                     if (player.inventory.itemInMainHand.type != Material.PLAYER_HEAD) return
                     println(clickedBlock.location)
                     println(DeadByDaylight.gameManager.generators)
@@ -326,7 +328,7 @@ class GameListener : Listener {
     }
 
     @EventHandler
-    fun onGeneratorPowerUp(event: GeneratorPowerUpEvent) {
+    fun onGeneratorPowerUp(ignored: GeneratorPowerUpEvent) {
         try {
             DeadByDaylight.instance.let { GameManager.runningGeneratorTask.runTaskTimer(it, 0L, 40L) }
         } catch (ignored: IllegalStateException) {}

@@ -64,8 +64,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // CraftMania
-    compileOnly 'cz.craftmania.craftcore:craftcore:2.2.7'
-    compileOnly 'cz.craftmania.craftlibs:craftlibs:1.1.2'
+    compileOnly 'cz.craftmania.craftcore:craftcore:2.3.0'
+    compileOnly 'cz.craftmania.craftlibs:craftlibs:1.1.4'
     compileOnly('cz.craftmania.crafteconomy:crafteconomy:1.3.6') {
         exclude group: 'co.aikar', module: 'acf-paper'
     }

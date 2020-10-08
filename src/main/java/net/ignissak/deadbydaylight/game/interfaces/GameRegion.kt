@@ -2,6 +2,10 @@ package net.ignissak.deadbydaylight.game.interfaces
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.bukkit.BukkitWorld
+import com.sk89q.worldedit.regions.CuboidRegion
+import com.sk89q.worldguard.protection.ApplicableRegionSet
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion
+import com.sk89q.worldguard.protection.regions.ProtectedRegion
 import net.ignissak.deadbydaylight.DeadByDaylight
 import org.bukkit.Location
 
@@ -9,14 +13,17 @@ enum class GameRegion(val regionNames: Array<String>, val title: String) {
 
     BAMBOO_FARM(arrayOf("bamboo"), "Bambusová farma"),
     DEEP_SPRUCE_FOREST(arrayOf("deepspruceforest"), "Hustý smrekový les"),
-    DOOR(arrayOf("door1", "door2"), "Východ"),
+    DOOR_1(arrayOf("door1"), "Východ"),
+    DOOR_2(arrayOf("door2"), "Východ"),
     EAST_GATE(arrayOf("eastgate"), "Východní brána"),
     EAST_PATH(arrayOf("eastpath"), "Východní stezka"),
-    GARDENS(arrayOf("gardens"), "Zahrady"),
+    GARDENS(arrayOf("gardens"), "Záhrady"),
     HOUSE_WITH_FARM(arrayOf("house1", "house2"), "Chalupa"),
     NORTH_DOOR(arrayOf("northdoor"), "Severní brána"),
     NORTH_RIVER(arrayOf("northriver"), "Severní řeka")
     ;
+
+    fun getApplicableRegion(name: String): ProtectedCuboidRegion? = DeadByDaylight.regionContainer.get(BukkitAdapter.adapt(DeadByDaylight.gameManager.lobbyLocation!!.world!!))!!.getRegion(name) as ProtectedCuboidRegion
 
     companion object {
 
@@ -29,7 +36,9 @@ enum class GameRegion(val regionNames: Array<String>, val title: String) {
         @JvmStatic
         fun getRegionAt(location: Location): GameRegion? {
             val regionManager = DeadByDaylight.regionContainer.get(BukkitAdapter.adapt(location.world))
-            return getRegionByRegionName(regionManager!!.regions.get(0)!!.id)
+            val regions = regionManager!!.getApplicableRegions(BukkitAdapter.asBlockVector(location)).regions
+            if (regions.size == 0) return null
+            return getRegionByRegionName(regions.first().id)
         }
 
     }

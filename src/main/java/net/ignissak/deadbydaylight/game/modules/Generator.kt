@@ -5,6 +5,7 @@ import com.gmail.filoghost.holographicdisplays.api.HologramsAPI
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.api.event.GeneratorPowerUpEvent
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
+import net.ignissak.deadbydaylight.game.interfaces.GameRegion
 import net.ignissak.deadbydaylight.utils.TextComponentBuilder
 import net.ignissak.deadbydaylight.utils.getGamePlayer
 import org.bukkit.Bukkit
@@ -62,7 +63,7 @@ class Generator(val location: Location) {
 
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&a&lGenerátor opraven!", true).broadcast()
-        TextComponentBuilder("&8[]") // TODO: Location
+        TextComponentBuilder("&8[${GameRegion.getRegionAt(location)?.title}]")
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&7Generátor opravili:", true).broadcast()
         TextComponentBuilder("&f${this.contributors.distinct().joinToString(", ") }", true).broadcast()

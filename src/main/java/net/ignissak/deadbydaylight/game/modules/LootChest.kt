@@ -1,14 +1,14 @@
 package net.ignissak.deadbydaylight.game.modules
 
 import net.ignissak.deadbydaylight.game.ItemManager
-import net.minecraft.server.v1_15_R1.BlockPosition
-import net.minecraft.server.v1_15_R1.Blocks
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockAction
+import net.minecraft.server.v1_16_R2.BlockPosition
+import net.minecraft.server.v1_16_R2.Blocks
+import net.minecraft.server.v1_16_R2.PacketPlayOutBlockAction
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 

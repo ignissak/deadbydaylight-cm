@@ -12,7 +12,9 @@ import org.bukkit.scheduler.BukkitRunnable
 class SurvivorFlashTask(private val survivor: Survivor): BukkitRunnable() {
 
     override fun run() {
+        println(1)
         if (!this.survivor.player.inventory.contains(Material.FLINT_AND_STEEL) || this.survivor.player.inventory.itemInMainHand.type != Material.FLINT_AND_STEEL) {
+            println(2)
             this.survivor.giveBlindness()
 
             this.cancel()
@@ -21,6 +23,8 @@ class SurvivorFlashTask(private val survivor: Survivor): BukkitRunnable() {
 
         this.survivor.light()
         val flashlight: Damageable = this.survivor.player.inventory.itemInMainHand.itemMeta as Damageable
+
+        println(3)
 
         if (flashlight.damage >= 64) {
             ChatInfo.warning(this.survivor.player, "Vyprchal ti tvůj zapalovač.")

@@ -17,7 +17,6 @@ class RolePreferenceMenu : InventoryProvider {
     override fun update(player: Player, contents: InventoryContents) {}
 
 
-    // TEST
     override fun init(player: Player, contents: InventoryContents) {
         val gamePlayer = DeadByDaylight.playerManager.getGamePlayer(player) ?: return
 

@@ -95,17 +95,24 @@ class BoardManager {
     }
 
     // "\u25A0"
+    // TEST: Separator
     private fun getActivatedGenerators(): String {
         val stringBuilder = StringBuilder()
-        if (DeadByDaylight.gameManager.generators.stream().anyMatch { it.isActivated() }) {
-            stringBuilder.append("§a\u25A0".repeat(DeadByDaylight.gameManager.generators.count { it.isActivated() }))
+        var i = 1
+        DeadByDaylight.gameManager.generators.sortedBy { !it.isActivated() }.forEach{ generator ->
+            if (i == 5) {
+                stringBuilder.append("§7|")
+            }
+            if (generator.isActivated()) stringBuilder.append("§a\u25A0")
+            else stringBuilder.append("§c\u25A0")
+            i++
         }
-        if (DeadByDaylight.gameManager.generators.stream().anyMatch { it.isActivated() } && DeadByDaylight.gameManager.generators.stream().anyMatch { !it.isActivated() }) {
-            stringBuilder.append("§7|")
+        /*if (DeadByDaylight.gameManager.generators.stream().anyMatch { it.isActivated() }) {
+            stringBuilder.append("§a\u25A0".repeat(DeadByDaylight.gameManager.generators.count { it.isActivated() }))
         }
         if (DeadByDaylight.gameManager.generators.stream().anyMatch { !it.isActivated() }) {
             stringBuilder.append("§c\u25A0".repeat(DeadByDaylight.gameManager.generators.count { !it.isActivated() }))
-        }
+        }*/
         return stringBuilder.toString()
     }
 

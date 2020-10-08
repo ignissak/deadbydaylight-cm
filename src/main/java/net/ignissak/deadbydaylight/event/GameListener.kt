@@ -14,13 +14,14 @@ import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.LootChest
 import net.ignissak.deadbydaylight.game.modules.Survivor
 import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
+import net.ignissak.deadbydaylight.utils.TextComponentBuilder
 import net.ignissak.deadbydaylight.utils.getGamePlayer
-import net.minecraft.server.v1_15_R1.PacketPlayOutCollect
+import net.minecraft.server.v1_16_R2.PacketPlayOutCollect
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.block.Block
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -333,6 +334,16 @@ class GameListener : Listener {
             DeadByDaylight.instance.let { GameManager.runningGeneratorTask.runTaskTimer(it, 0L, 40L) }
         } catch (ignored: IllegalStateException) {}
         // TODO: Open gates?
+        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 5) {
+
+            TextComponentBuilder("").broadcast()
+            TextComponentBuilder("§a§lBRÁNY SE OTEVÍRAJÍ ZA 30 VTEŘIN!", true).broadcast()
+            TextComponentBuilder("").broadcast()
+
+            Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
+                DeadByDaylight.gameManager.gates.forEach { it1 -> it1.open() }
+            }, 30 * 20)
+        }
     }
 
     @EventHandler
@@ -351,7 +362,7 @@ class GameListener : Listener {
                 e.printStackTrace()
             }
         } else {
-            if (player.inventory.getItem(event.newSlot)!!.isSimilar(ItemManager.flash)) {
+            if (player.inventory.getItem(event.newSlot)!!.type == Material.FLINT_AND_STEEL) {
                 gamePlayer.holdingFlash()
             }
         }

@@ -38,12 +38,18 @@ class JoinListener : Listener {
         player.inventory.setItem(0, ItemManager.role)
 
         DeadByDaylight.boardManager.updateAllPlayers()
+
+        DeadByDaylight.gameManager.tryStart()
     }
 
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
         val player = event.player
         val craftPlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(player) ?: return
+
+        if (DeadByDaylight.gameManager.gameState == GameState.INGAME) {
+            DeadByDaylight.gameManager.tryEnd()
+        }
 
         event.quitMessage = "${DeadByDaylight.prefix}${player.name} se §codpojil §7(${Bukkit.getOnlinePlayers().size - 1}/5)"
         DeadByDaylight.playerManager.unregisterPlayer(craftPlayer)

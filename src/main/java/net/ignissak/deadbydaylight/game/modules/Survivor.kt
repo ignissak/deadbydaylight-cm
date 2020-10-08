@@ -9,6 +9,7 @@ import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.ItemManager
 import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
+import net.ignissak.deadbydaylight.game.interfaces.GameRegion
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.task.SurvivorDyingTask
 import net.ignissak.deadbydaylight.game.task.SurvivorFlashTask
@@ -89,34 +90,40 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         this.survivalState = SurvivalState.DYING
 
-        player.allowFlight = true
-        player.isFlying = true
+        val ending = DeadByDaylight.gameManager.tryEnd()
 
-        previousLocation = player.location.clone()
-        player.removePotionEffect(PotionEffectType.BLINDNESS)
-        player.health = .5
+        if (ending) {
+            this.die(killer)
+        } else {
+            player.allowFlight = true
+            player.isFlying = true
 
-        TextComponentBuilder("").send(PlayerManager.survivorTeam)
-        TextComponentBuilder("§c${player.name} byl smrtělne zraněn!", true).send(PlayerManager.survivorTeam)
-        TextComponentBuilder("TODO", true).send(PlayerManager.survivorTeam) // TODO: Location
-        TextComponentBuilder("").send(PlayerManager.survivorTeam)
+            previousLocation = player.location.clone()
+            player.removePotionEffect(PotionEffectType.BLINDNESS)
+            player.health = .5
 
-        val npcSpawnLocation = previousLocation!!.clone()
-        npcSpawnLocation.yaw = 0F
-        npcSpawnLocation.pitch = 0F
+            TextComponentBuilder("").send(PlayerManager.survivorTeam)
+            TextComponentBuilder("§c${player.name} byl smrtělne zraněn!", true).send(PlayerManager.survivorTeam)
+            TextComponentBuilder("§8[${GameRegion.getRegionAt(previousLocation!!)?.title}]", true).send(PlayerManager.survivorTeam) // TEST: Location
+            TextComponentBuilder("").send(PlayerManager.survivorTeam)
 
-        npc.show(npcSpawnLocation)
-        PlayerAnimation.SLEEP.play(npc.entity as Player)
+            val npcSpawnLocation = previousLocation!!.clone()
+            npcSpawnLocation.yaw = 0F
+            npcSpawnLocation.pitch = 0F
 
-        this.hideFromOthers()
+            npc.show(npcSpawnLocation)
+            PlayerAnimation.SLEEP.play(npc.entity as Player)
 
-        DeadByDaylight.instance.let { this.survivorDyingTask.runTaskTimer(it, 0, 20) }
+            this.hideFromOthers()
 
-        // Teleport above corpse
-        val locToTeleport = player.location.clone().add(.0, 1.0, .0)
-        locToTeleport.yaw = 0F
-        locToTeleport.pitch = 90F
-        player.teleport(locToTeleport)
+            DeadByDaylight.instance.let { this.survivorDyingTask.runTaskTimer(it, 0, 20) }
+
+            // Teleport above corpse
+            val locToTeleport = player.location.clone().add(.0, 1.0, .0)
+            locToTeleport.yaw = 0F
+            locToTeleport.pitch = 90F
+            player.teleport(locToTeleport)
+        }
     }
 
     fun revive(revivedBy: Survivor) {
@@ -161,12 +168,22 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.giveCoins()
         this.updateStats()
 
-        DeadByDaylight.gameManager.tryEnd()
+        val ending = DeadByDaylight.gameManager.tryEnd()
+
+        if (!ending) {
+            player.inventory.contents.forEach {
+                if (it != null) {
+                    if (it.type == Material.AIR) return@forEach
+                    previousLocation?.world?.dropItem(previousLocation!!, it)
+                }
+            }
+        }
     }
 
     fun win() {
         endedAt = System.currentTimeMillis()
 
+        gameStats.survivor_wins += 1
         gameStats.playtime += endedAt!! - DeadByDaylight.gameManager.startedAt
 
         this.updateStats()

@@ -9,10 +9,8 @@ package net.ignissak.deadbydaylight.game
 import cz.craftmania.craftcore.spigot.messages.Title
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.api.event.GameStartEvent
-import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
-import net.ignissak.deadbydaylight.game.interfaces.GameState
-import net.ignissak.deadbydaylight.game.interfaces.RolePreference
-import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
+import net.ignissak.deadbydaylight.game.interfaces.*
+import net.ignissak.deadbydaylight.game.modules.Gate
 import net.ignissak.deadbydaylight.game.modules.Generator
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.LootChest
@@ -20,11 +18,11 @@ import net.ignissak.deadbydaylight.game.task.LocationTask
 import net.ignissak.deadbydaylight.game.task.RunningGeneratorTask
 import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
 import net.ignissak.deadbydaylight.utils.*
+import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Collectors
 
@@ -41,7 +39,7 @@ class GameManager {
 
     var generators: MutableList<Generator> = mutableListOf()
     var lootChests: MutableList<LootChest> = mutableListOf()
-    // TODO: Functionality
+    // TEST: Functionality
     var drops: MutableList<Location> = mutableListOf()
 
     var lobbyLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.lobby"))
@@ -50,6 +48,7 @@ class GameManager {
     var dumpLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.dumb"))
 
     val revivingTasks: MutableList<SurvivorRevivingSurvivorTask> = mutableListOf()
+    val gates: MutableList<Gate> = mutableListOf()
 
     var locationTask: LocationTask = LocationTask()
 
@@ -87,6 +86,10 @@ class GameManager {
             LocationUtils.parseLocation(it, false)?.let { it1 -> drops.add(it1) }
         }
         Log.info("Registered ${drops.size} drops.")
+
+        gates.add(Gate(GameRegion.DOOR_1, Material.IRON_BARS))
+        gates.add(Gate(GameRegion.DOOR_2, Material.IRON_BARS))
+        Log.info("Registered ${gates.size} gates.")
 
     }
 
@@ -161,7 +164,7 @@ class GameManager {
         }
 
         // Survivor teleporting
-        val queue: Queue<Location> = LinkedList(survivorLocations)
+        val queue: Queue<Location> = LinkedList(survivorLocations.shuffled())
 
         PlayerManager.survivorTeam.entries.forEach {
             val location = queue.remove()
@@ -195,6 +198,19 @@ class GameManager {
             lootChests.shuffled().take(6).forEach { it.loot.add(ItemManager.flash) }
 
             Log.info("Loot in loot chests has been generated.")
+        }
+
+        // Adding loot to drops
+        if (drops.size > 0) {
+            drops.forEach {
+                when (Random().nextInt(4)) {
+                    2 -> it.world?.dropItem(it, ItemManager.flash)
+                    3 -> it.world?.dropItem(it, ItemManager.bandage)
+                    else -> it.world?.dropItem(it, ItemManager.fuel)
+                }
+            }
+
+            Log.info("Drops have been spawned.")
         }
 
         // Killer messages
@@ -313,11 +329,13 @@ class GameManager {
         }
     }
 
-    fun tryEnd() {
+    fun tryEnd(): Boolean {
         // TEST
-        if (PlayerManager.survivorTeam.entries.stream().allMatch{ it.getSurvivor()?.survivalState == SurvivalState.SPECTATING || it.getSurvivor()?.survivalState == SurvivalState.DYING} || PlayerManager.survivorTeam.entries.size == 0 || PlayerManager.killerTeam.entries.size == 0) {
+        if (PlayerManager.survivorTeam.entries.stream().noneMatch{ it.getSurvivor()?.survivalState == SurvivalState.PLAYING} || PlayerManager.survivorTeam.entries.size == 0 || PlayerManager.killerTeam.entries.size == 0) {
             endGame()
+            return true
         }
+        return false
     }
 
     private fun endGame() {
@@ -410,7 +428,7 @@ class GameManager {
         }
     }
 
-    fun getGameTimeFormatted(): String = SimpleDateFormat("mm:ss").format(endsAt - startedAt)
+    fun getGameTimeFormatted(): String = DurationFormatUtils.formatDuration(endsAt - startedAt, "mm:ss")
 
     fun getLootChestAt(location: Location): LootChest? = lootChests.find { it.location.block.location == location }
 

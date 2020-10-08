@@ -5,13 +5,13 @@ import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
-import net.minecraft.server.v1_15_R1.NBTTagCompound
-import net.minecraft.server.v1_15_R1.NBTTagList
+import net.minecraft.server.v1_16_R2.NBTTagCompound
+import net.minecraft.server.v1_16_R2.NBTTagList
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerTeleportEvent
 import org.bukkit.inventory.ItemFlag

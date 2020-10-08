@@ -12,7 +12,6 @@ object ItemManager {
         get() = Utils.createHead("fuel", "8847dbf6-6648-47f2-bb4f-667903125a9e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQyYzE5YjQ0MjU0MTM1MWE2YjgxZWViNmNiZWY0MTk2NmZmYjdkYmU0YzEzNmI4N2Y1YmFmOWQxNGEifX19",
                 "§eBaterie §7(klikni pravym)", "", "§7Kliknutím pravym s baterii", "§7na generátor pro vložení.", "")!!
 
-    // TODO: Functionality
     val flash: ItemStack
         get() = ItemBuilder(Material.FLINT_AND_STEEL, 1)
                 .setName("§9Zapalovač §7(podrž pro použití)")
@@ -20,7 +19,6 @@ object ItemManager {
                 .hideAllFlags()
                 .build()
 
-    // TEST: Functionality
     val bandage: ItemStack
         get() = ItemBuilder(Material.PAPER, 1)
                 .setName("§cBandáž §7(klikni pravym)")

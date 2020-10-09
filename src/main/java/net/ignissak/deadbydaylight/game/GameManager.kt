@@ -343,6 +343,8 @@ class GameManager {
         endedAt = System.currentTimeMillis()
         gameState = GameState.ENDING
 
+        runningGeneratorTask.stop()
+
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
         DeadByDaylight.boardManager.updateAllPlayers()
 

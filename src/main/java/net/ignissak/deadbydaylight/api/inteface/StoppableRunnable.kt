@@ -1,4 +1,4 @@
-package net.ignissak.deadbydaylight.api
+package net.ignissak.deadbydaylight.api.inteface
 
 interface StoppableRunnable {
 

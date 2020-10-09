@@ -100,7 +100,7 @@ class BoardManager {
         val stringBuilder = StringBuilder()
         var i = 1
         DeadByDaylight.gameManager.generators.sortedBy { !it.isActivated() }.forEach{ generator ->
-            if (i == 5) {
+            if (i == 6) {
                 stringBuilder.append("§7|")
             }
             if (generator.isActivated()) stringBuilder.append("§a\u25A0")

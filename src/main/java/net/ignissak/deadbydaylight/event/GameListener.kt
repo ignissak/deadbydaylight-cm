@@ -103,14 +103,21 @@ class GameListener : Listener {
                 return
             }
             // Ignore spectators
-            if (gamePlayer.survivalState != SurvivalState.PLAYING) return
+            if (gamePlayer.survivalState != SurvivalState.PLAYING) {
+                event.isCancelled = true
+                return
+            }
 
             val clickedBlock: Block = event.clickedBlock!!
             when (clickedBlock.type) {
                 // Click on loot chest
                 Material.CHEST -> {
-                    val lootChest: LootChest = DeadByDaylight.gameManager.getLootChestAt(clickedBlock.location)
-                            ?: return
+                    val lootChest: LootChest? = DeadByDaylight.gameManager.getLootChestAt(clickedBlock.location)
+
+                    if (lootChest == null) {
+                        event.isCancelled = true
+                        return
+                    }
 
                     if (!lootChest.opened) lootChest.open()
                     event.isCancelled = true
@@ -120,8 +127,12 @@ class GameListener : Listener {
                     if (player.inventory.itemInMainHand.type != Material.PLAYER_HEAD) return
                     println(clickedBlock.location)
                     println(DeadByDaylight.gameManager.generators)
-                    val generator: Generator = DeadByDaylight.gameManager.getGeneratorAt(clickedBlock.location)
-                            ?: return
+                    val generator: Generator? = DeadByDaylight.gameManager.getGeneratorAt(clickedBlock.location)
+
+                    if (generator == null) {
+                        event.isCancelled = true
+                        return
+                    }
 
                     if (generator.increaseProgress(1, gamePlayer)) {
                         Title("§a+25%", "", 5, 10, 5).send(player)
@@ -216,7 +227,6 @@ class GameListener : Listener {
 
                 gamePlayer.coins += 1
                 player.sendMessage("§e+1CC §8[Nalezení baterie]")
-                // BUG: Gives 2 instead of 1
                 return
             } else event.isCancelled = true
         } else if (itemStack.isSimilar(ItemManager.bandage)) {

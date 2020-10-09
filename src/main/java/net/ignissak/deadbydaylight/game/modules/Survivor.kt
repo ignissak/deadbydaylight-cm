@@ -228,6 +228,6 @@ class Survivor(player: Player) : GamePlayer(player) {
 
     fun holdingFlash() {
         this.survivorFlashTask = SurvivorFlashTask(this)
-        this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 4)
+        this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 5)
     }
 }

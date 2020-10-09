@@ -95,16 +95,7 @@ class Utils {
         }
         @JvmStatic
         fun getCenter(loc: Location): Location? {
-            return Location(loc.world,
-                    getRelativeCoord(loc.blockX),
-                    getRelativeCoord(loc.blockY),
-                    getRelativeCoord(loc.blockZ))
-        }
-        @JvmStatic
-        private fun getRelativeCoord(i: Int): Double {
-            var d = i.toDouble()
-            d = if (d < 0) d - .5 else d + .5
-            return d
+            return loc.clone().add(if (loc.x > 0) 0.5 else -0.5, 0.0, if (loc.z > 0) 0.5 else -0.5)
         }
     }
 }

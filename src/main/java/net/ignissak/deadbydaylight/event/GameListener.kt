@@ -31,9 +31,9 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
-import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.meta.Damageable
 import java.lang.Exception
 
 
@@ -125,7 +125,10 @@ class GameListener : Listener {
                 }
                 // Click on generator
                 Material.BLAST_FURNACE -> {
-                    if (player.inventory.itemInMainHand.type != Material.PLAYER_HEAD) return
+                    if (player.inventory.itemInMainHand.type != Material.PLAYER_HEAD) {
+                        event.isCancelled = true
+                        return
+                    }
                     println(clickedBlock.location)
                     println(DeadByDaylight.gameManager.generators)
                     val generator: Generator? = DeadByDaylight.gameManager.getGeneratorAt(clickedBlock.location)
@@ -253,7 +256,18 @@ class GameListener : Listener {
                 return
             } else if (player.inventory.contains(Material.FLINT_AND_STEEL)) {
                 val flintAndSteel = player.inventory.getItem(2) ?: return
+                val damageable = flintAndSteel.itemMeta as Damageable
 
+                if (damageable.hasDamage()) {
+                    val packet = PacketPlayOutCollect(item.entityId, player.entityId, 1)
+                    (player as CraftPlayer).handle.playerConnection.sendPacket(packet)
+                    item.remove()
+                    player.inventory.setItem(2, itemStack)
+
+                    gamePlayer.coins += 1
+                    player.sendMessage("§e+1CC §8[Nalezení zapalovače]")
+                    return
+                }
             }
             else event.isCancelled = true
         } else event.isCancelled = true
@@ -348,8 +362,9 @@ class GameListener : Listener {
         try {
             DeadByDaylight.instance.let { GameManager.runningGeneratorTask.runTaskTimer(it, 0L, 40L) }
         } catch (ignored: IllegalStateException) {}
-        // TODO: Open gates?
-        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 5) {
+        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 1) {
+
+            // TODO: Change messages
 
             TextComponentBuilder("").broadcast()
             TextComponentBuilder("§e§lBRÁNY SE OTEVÍRAJÍ ZA 30 VTEŘIN!", true).broadcast()
@@ -373,6 +388,8 @@ class GameListener : Listener {
     fun onLightUseEvent(event: PlayerItemHeldEvent) {
         val player = event.player
         val gamePlayer = player.getGamePlayer() ?: return
+
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) return
 
         if (gamePlayer !is Survivor) return
         val newItem = player.inventory.getItem(event.newSlot)
@@ -418,6 +435,6 @@ class GameListener : Listener {
 
     @EventHandler
     fun onInteract(event: InventoryClickEvent) {
-        if (event.clickedInventory?.type == InventoryType.PLAYER && !event.whoClicked.isOp) event.isCancelled = true
+        if (!event.whoClicked.isOp) event.isCancelled = true
     }
 }

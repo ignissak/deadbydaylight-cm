@@ -16,7 +16,7 @@ class RegionListener : Listener {
         val gameRegion = GameRegion.getRegionByRegionName(id) ?: return
         val gamePlayer = event.player.getGamePlayer() ?: return
 
-        if (gameRegion == GameRegion.DOOR_1 || gameRegion == GameRegion.DOOR_2) {
+        if (gameRegion == GameRegion.ESCAPE_1 || gameRegion == GameRegion.ESCAPE_2) {
             if (gamePlayer !is Survivor) {
                 // Killer cannot access this region
                 event.isCancelled = true

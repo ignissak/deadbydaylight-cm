@@ -6,10 +6,7 @@ import cz.craftmania.craftlibs.CraftLibs
 import net.citizensnpcs.api.CitizensAPI
 import net.ignissak.deadbydaylight.command.AdminCommands
 import net.ignissak.deadbydaylight.command.PlayerCommands
-import net.ignissak.deadbydaylight.event.GameListener
-import net.ignissak.deadbydaylight.event.GeneralListener
-import net.ignissak.deadbydaylight.event.JoinListener
-import net.ignissak.deadbydaylight.event.WorldListener
+import net.ignissak.deadbydaylight.event.*
 import net.ignissak.deadbydaylight.game.BoardManager
 import net.ignissak.deadbydaylight.game.GameManager
 import net.ignissak.deadbydaylight.game.PlayerManager
@@ -70,6 +67,11 @@ class DeadByDaylight : JavaPlugin() {
     override fun onDisable() {
         Log.info("Turning off...")
 
+        gameManager.gates.forEach { it.close() }
+        gameManager.lootChests.forEach { it.close() }
+
+        gameManager.clearEntities()
+
         try {
             boardUpdateTask.cancel()
         } catch (ignored: Exception) {}
@@ -86,6 +88,7 @@ class DeadByDaylight : JavaPlugin() {
         pluginManager.registerEvents(JoinListener(), this)
         pluginManager.registerEvents(WorldListener(), this)
         pluginManager.registerEvents(GameListener(), this)
+        pluginManager.registerEvents(RegionListener(), this)
     }
 
     companion object {

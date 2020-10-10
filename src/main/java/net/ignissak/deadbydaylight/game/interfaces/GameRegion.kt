@@ -13,8 +13,10 @@ enum class GameRegion(val regionNames: Array<String>, val title: String) {
 
     BAMBOO_FARM(arrayOf("bamboo"), "Bambusová farma"),
     DEEP_SPRUCE_FOREST(arrayOf("deepspruceforest"), "Hustý smrekový les"),
-    DOOR_1(arrayOf("door1"), "Východ"),
-    DOOR_2(arrayOf("door2"), "Východ"),
+    ESCAPE_1(arrayOf("door1"), "Východ"),
+    ESCAPE_2(arrayOf("door2"), "Východ"),
+    IRON_BARS_1(arrayOf("ironbars1"), "Východ"),
+    IRON_BARS_2(arrayOf("ironbars2"), "Východ"),
     EAST_GATE(arrayOf("eastgate"), "Východní brána"),
     EAST_PATH(arrayOf("eastpath"), "Východní stezka"),
     GARDENS(arrayOf("gardens"), "Záhrady"),
@@ -22,6 +24,7 @@ enum class GameRegion(val regionNames: Array<String>, val title: String) {
     NORTH_DOOR(arrayOf("northdoor"), "Severní brána"),
     NORTH_RIVER(arrayOf("northriver"), "Severní řeka")
     ;
+
 
     fun getApplicableRegion(name: String): ProtectedCuboidRegion? = DeadByDaylight.regionContainer.get(BukkitAdapter.adapt(DeadByDaylight.gameManager.lobbyLocation!!.world!!))!!.getRegion(name) as ProtectedCuboidRegion
 

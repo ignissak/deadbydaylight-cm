@@ -88,8 +88,8 @@ class GameManager {
         }
         Log.info("Registered ${drops.size} drops.")
 
-        gates.add(Gate(GameRegion.DOOR_1, Material.IRON_BARS))
-        gates.add(Gate(GameRegion.DOOR_2, Material.IRON_BARS))
+        gates.add(Gate(GameRegion.IRON_BARS_1, Material.IRON_BARS))
+        gates.add(Gate(GameRegion.IRON_BARS_2, Material.IRON_BARS))
         Log.info("Registered ${gates.size} gates.")
 
     }
@@ -202,8 +202,8 @@ class GameManager {
         // Adding loot to loot chests
         if (lootChests.size > 0) {
             lootChests.forEach { it.loot.add(ItemManager.fuel) }
-            lootChests.shuffled().take(6).forEach { it.loot.add(ItemManager.bandage) }
-            lootChests.shuffled().take(6).forEach { it.loot.add(ItemManager.flash) }
+            lootChests.shuffled().take(14).forEach { it.loot.add(ItemManager.bandage) }
+            lootChests.shuffled().take(9).forEach { it.loot.add(ItemManager.flash) }
 
             Log.info("Loot in loot chests has been generated.")
         }
@@ -215,14 +215,17 @@ class GameManager {
                     2 -> {
                         val dropItem = it.world?.dropItem(it, ItemManager.flash)
                         dropItem?.customName = "§9Zapalovač"
+                        dropItem?.isCustomNameVisible = true
                     }
                     3 -> {
                         val dropItem = it.world?.dropItem(it, ItemManager.bandage)
                         dropItem?.customName = "§cBandáž"
+                        dropItem?.isCustomNameVisible = true
                     }
                     else -> {
                         val dropItem = it.world?.dropItem(it, ItemManager.fuel)
                         dropItem?.customName = "§eBaterie"
+                        dropItem?.isCustomNameVisible = true
                     }
                 }
             }
@@ -455,7 +458,7 @@ class GameManager {
 
     fun getGeneratorAt(location: Location): Generator? = generators.find { it.location.block.location == location }
 
-    private fun clearEntities() {
+    fun clearEntities() {
         lobbyLocation?.world?.entities?.forEach { if (it !is Player) it.remove() }
     }
 

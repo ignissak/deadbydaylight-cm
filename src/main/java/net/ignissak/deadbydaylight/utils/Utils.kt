@@ -95,7 +95,7 @@ class Utils {
         }
         @JvmStatic
         fun getCenter(loc: Location): Location? {
-            return loc.clone().add(if (loc.x > 0) 0.5 else -0.5, 0.0, if (loc.z > 0) 0.5 else -0.5)
+            return loc.clone().add(.5, .5, .5)
         }
     }
 }

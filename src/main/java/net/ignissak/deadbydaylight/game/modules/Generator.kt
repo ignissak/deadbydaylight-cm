@@ -57,13 +57,12 @@ class Generator(val location: Location) {
 
     private fun powerUp() {
         // TODO
-        Bukkit.getPluginManager().callEvent(GeneratorPowerUpEvent(this))
 
         location.world?.strikeLightningEffect(location)
 
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&a&lGenerátor opraven!", true).broadcast()
-        TextComponentBuilder("&8[${GameRegion.getRegionAt(location)?.title}]").broadcast()
+        TextComponentBuilder("&8[${GameRegion.getRegionAt(location)?.title}]", true).broadcast()
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&7Generátor opravili:", true).broadcast()
         TextComponentBuilder("&f${this.contributors.distinct().joinToString(", ") }", true).broadcast()
@@ -76,6 +75,9 @@ class Generator(val location: Location) {
             it.getGamePlayer()!!.coins += coinsToAdd
             it.getGamePlayer()!!.player.sendMessage("§e+${coinsToAdd}CC §8[Opravení generátoru]")
         }
+
+        Bukkit.getPluginManager().callEvent(GeneratorPowerUpEvent(this))
+
     }
 
     private fun getPercentage(): String {

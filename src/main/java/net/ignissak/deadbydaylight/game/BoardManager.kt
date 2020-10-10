@@ -6,9 +6,11 @@ import net.ignissak.deadbydaylight.game.interfaces.GameState
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
+import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.getSurvivor
 import net.minecord.xoreboardutil.bukkit.XoreBoard
 import net.minecord.xoreboardutil.bukkit.XoreBoardUtil
+import org.bukkit.ChatColor
 
 class BoardManager {
 
@@ -17,7 +19,7 @@ class BoardManager {
 
         val privateSidebar = xoreBoard.getPrivateSidebar(gamePlayer.player)
 
-        privateSidebar.displayName = "§c§lHALLOWEEN"
+        privateSidebar.displayName = ChatColor.translateAlternateColorCodes('&', "${Constants.halloweenColor}&lHALLOWEEN")
         privateSidebar.clearLines()
         privateSidebar.lines = getLines(gamePlayer)
 

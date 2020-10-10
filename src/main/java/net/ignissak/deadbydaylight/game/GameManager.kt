@@ -23,6 +23,7 @@ import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
+import java.lang.IllegalStateException
 import java.util.*
 import java.util.stream.Collectors
 
@@ -143,6 +144,8 @@ class GameManager {
 
     private fun startGame() {
         // TEST: Start game
+        Title("§c§lHALLOWEEN", "§fNačítaní hry...", 10, 180, 10).broadcast()
+
         startedAt = System.currentTimeMillis()
         endsAt = System.currentTimeMillis() + (15 * 60 * 1000)
         startingPlayers = PlayerManager.players.size
@@ -150,13 +153,14 @@ class GameManager {
         isDisabledMoving = true
         this.clearEntities()
 
+        // Increase statistics
         PlayerManager.players.values.forEach{ it.gameStats.games_played += 1 }
 
         countdown = 15
 
-        Title("§c§lHALLOWEEN", "§fNačítaní hry...", 10, 180, 10).broadcast()
-
         this.createTeams()
+
+        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 0, 20)
 
         // Killer teleporting
         PlayerManager.killerTeam.entries.forEach {
@@ -175,15 +179,19 @@ class GameManager {
 
         // Survivor's health & hunger
         PlayerManager.survivorTeam.entries.forEach {
+            it.getPlayer()?.gameMode = GameMode.ADVENTURE
             it.getPlayer()?.foodLevel = 6
             it.getPlayer()?.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 4.0
             it.getPlayer()?.health = 4.0
         }
 
         PlayerManager.killerTeam.entries.forEach {
+            it.getPlayer()?.gameMode = GameMode.ADVENTURE
             it.getPlayer()?.foodLevel = 0
             it.getPlayer()?.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 2.0
             it.getPlayer()?.health = 2.0
+
+            it.getKiller()?.disguise()
         }
 
         // Game items
@@ -204,9 +212,18 @@ class GameManager {
         if (drops.size > 0) {
             drops.forEach {
                 when (Random().nextInt(4)) {
-                    2 -> it.world?.dropItem(it, ItemManager.flash)
-                    3 -> it.world?.dropItem(it, ItemManager.bandage)
-                    else -> it.world?.dropItem(it, ItemManager.fuel)
+                    2 -> {
+                        val dropItem = it.world?.dropItem(it, ItemManager.flash)
+                        dropItem?.customName = "§9Zapalovač"
+                    }
+                    3 -> {
+                        val dropItem = it.world?.dropItem(it, ItemManager.bandage)
+                        dropItem?.customName = "§cBandáž"
+                    }
+                    else -> {
+                        val dropItem = it.world?.dropItem(it, ItemManager.fuel)
+                        dropItem?.customName = "§eBaterie"
+                    }
                 }
             }
 
@@ -215,7 +232,7 @@ class GameManager {
 
         // Killer messages
         TextComponentBuilder("").send(PlayerManager.killerTeam)
-        TextComponentBuilder("&c&lHALLOWEEN", true).send(PlayerManager.killerTeam)
+        TextComponentBuilder("${Constants.halloweenColor}&lHALLOWEEN", true).send(PlayerManager.killerTeam)
         TextComponentBuilder("").send(PlayerManager.killerTeam)
         TextComponentBuilder("&e&lJSI KILLER!", true).send(PlayerManager.killerTeam)
         TextComponentBuilder("").send(PlayerManager.killerTeam)
@@ -225,7 +242,7 @@ class GameManager {
 
         // Survivor messages
         TextComponentBuilder("").send(PlayerManager.survivorTeam)
-        TextComponentBuilder("&c&lHALLOWEEN", true).send(PlayerManager.survivorTeam)
+        TextComponentBuilder("${Constants.halloweenColor}&lHALLOWEEN", true).send(PlayerManager.survivorTeam)
         TextComponentBuilder("").send(PlayerManager.survivorTeam)
         TextComponentBuilder("&a&lJSI SURVIVOR!", true).send(PlayerManager.survivorTeam)
         TextComponentBuilder("").send(PlayerManager.survivorTeam)
@@ -242,7 +259,6 @@ class GameManager {
                 if (countdown == 0) {
                     // TEST: Start
                     Bukkit.getPluginManager().callEvent(GameStartEvent())
-                    DeadByDaylight.instance.let { DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(it, 0, 20) }
 
                     isDisabledMoving = false
                     Title("§c§lHRA ZAČÍNÁ", "§7Hodně štěstí!", 0, 60, 20).broadcast()
@@ -339,11 +355,14 @@ class GameManager {
     }
 
     private fun endGame() {
+        if (gameState == GameState.ENDING) return
         // TODO
         endedAt = System.currentTimeMillis()
         gameState = GameState.ENDING
 
-        runningGeneratorTask.stop()
+        try {
+            runningGeneratorTask.cancel()
+        } catch (ignored: IllegalStateException) {}
 
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
         DeadByDaylight.boardManager.updateAllPlayers()

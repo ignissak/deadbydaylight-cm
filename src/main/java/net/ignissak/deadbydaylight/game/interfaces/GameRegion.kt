@@ -27,7 +27,8 @@ enum class GameRegion(val regionNames: Array<String>, val title: String) {
 
     companion object {
 
-        private fun getRegionByRegionName(name: String?): GameRegion? {
+        @JvmStatic
+        fun getRegionByRegionName(name: String?): GameRegion? {
             if (name == null) return null
             values().forEach { if (it.regionNames.contains(name)) return it }
             return null

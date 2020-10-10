@@ -14,6 +14,7 @@ import net.ignissak.deadbydaylight.game.BoardManager
 import net.ignissak.deadbydaylight.game.GameManager
 import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.task.BoardUpdateTask
+import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.Log
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
@@ -92,7 +93,7 @@ class DeadByDaylight : JavaPlugin() {
         lateinit var gameManager: GameManager
         lateinit var playerManager: PlayerManager
         lateinit var boardManager: BoardManager
-        const val prefix: String = "§6§lHalloween §8| §7 "
+        val prefix: String = org.bukkit.ChatColor.translateAlternateColorCodes('&', "${Constants.halloweenColor}&lHalloween &8| &7 ")
         val boardUpdateTask: BoardUpdateTask = BoardUpdateTask()
         lateinit var regionContainer: RegionContainer
     }

@@ -3,6 +3,7 @@ package net.ignissak.deadbydaylight.game.interfaces
 import com.google.gson.Gson
 import cz.craftmania.crafteconomy.api.CraftCoinsAPI
 import cz.craftmania.craftlibs.CraftLibs
+import me.libraryaddict.disguise.DisguiseAPI
 import net.citizensnpcs.api.CitizensAPI
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.PlayerManager
@@ -35,6 +36,8 @@ abstract class GamePlayer(val player: Player) {
                 gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
             }
         }
+
+        this.unDisguise()
 
         player.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 20.0
         player.health = 20.0
@@ -91,6 +94,10 @@ abstract class GamePlayer(val player: Player) {
             gotCoins = true
             CraftCoinsAPI.giveCoins(player, coins.toLong())
         }
+    }
+
+    fun unDisguise() {
+        DisguiseAPI.undisguiseToAll(this.player)
     }
 
     override fun toString(): String {

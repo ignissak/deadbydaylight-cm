@@ -28,8 +28,9 @@ class Survivor(player: Player) : GamePlayer(player) {
 
     var previousLocation: Location? = null
     var endedAt: Long? = null
-    var revivedPlayers: Int = 0
-    var healing: Boolean = false
+    var revivedPlayers = 0
+    var healing = false
+    var escaped = false
 
     val npc: NPC = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "corpse-${player.name}")
 
@@ -181,12 +182,26 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun win() {
-        endedAt = System.currentTimeMillis()
+        this.survivalState = SurvivalState.SPECTATING
+        this.endedAt = System.currentTimeMillis()
+        this.escaped = true
 
-        gameStats.survivor_wins += 1
-        gameStats.playtime += endedAt!! - DeadByDaylight.gameManager.startedAt
+        this.gameStats.survivor_wins += 1
+        this.gameStats.playtime += endedAt!! - DeadByDaylight.gameManager.startedAt
 
+        TextComponentBuilder(DeadByDaylight.prefix + "")
+        Title("§a§lUTEKL JSI", "Skvělá práce.", 10, 60, 10).send(player)
+
+        this.coins += 5
+        this.player.sendMessage("§e+5CC §8[Útěk]")
+
+        this.npc.destroy()
+        CitizensAPI.getNPCRegistry().deregister(this.npc)
+
+        this.giveCoins()
         this.updateStats()
+
+        DeadByDaylight.gameManager.tryEnd()
     }
 
     fun showHealthTitle() {
@@ -228,6 +243,6 @@ class Survivor(player: Player) : GamePlayer(player) {
 
     fun holdingFlash() {
         this.survivorFlashTask = SurvivorFlashTask(this)
-        this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 5)
+        this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 6)
     }
 }

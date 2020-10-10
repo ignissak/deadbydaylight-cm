@@ -63,7 +63,7 @@ class Generator(val location: Location) {
 
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&a&lGenerátor opraven!", true).broadcast()
-        TextComponentBuilder("&8[${GameRegion.getRegionAt(location)?.title}]")
+        TextComponentBuilder("&8[${GameRegion.getRegionAt(location)?.title}]").broadcast()
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&7Generátor opravili:", true).broadcast()
         TextComponentBuilder("&f${this.contributors.distinct().joinToString(", ") }", true).broadcast()

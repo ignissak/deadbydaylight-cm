@@ -17,9 +17,7 @@ import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
 import net.ignissak.deadbydaylight.utils.TextComponentBuilder
 import net.ignissak.deadbydaylight.utils.getGamePlayer
 import net.minecraft.server.v1_16_R2.PacketPlayOutCollect
-import org.bukkit.Bukkit
-import org.bukkit.GameMode
-import org.bukkit.Material
+import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer
 import org.bukkit.entity.EntityType
@@ -29,8 +27,11 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.*
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
 import java.lang.Exception
@@ -250,7 +251,11 @@ class GameListener : Listener {
                 gamePlayer.coins += 1
                 player.sendMessage("§e+1CC §8[Nalezení zapalovače]")
                 return
-            } else event.isCancelled = true
+            } else if (player.inventory.contains(Material.FLINT_AND_STEEL)) {
+                val flintAndSteel = player.inventory.getItem(2) ?: return
+
+            }
+            else event.isCancelled = true
         } else event.isCancelled = true
     }
 
@@ -347,11 +352,19 @@ class GameListener : Listener {
         if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 5) {
 
             TextComponentBuilder("").broadcast()
-            TextComponentBuilder("§a§lBRÁNY SE OTEVÍRAJÍ ZA 30 VTEŘIN!", true).broadcast()
+            TextComponentBuilder("§e§lBRÁNY SE OTEVÍRAJÍ ZA 30 VTEŘIN!", true).broadcast()
             TextComponentBuilder("").broadcast()
 
             Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
                 DeadByDaylight.gameManager.gates.forEach { it1 -> it1.open() }
+
+                TextComponentBuilder("").broadcast()
+                TextComponentBuilder("§a§lBRÁNY SE OTEVŘELI!", true).broadcast()
+                TextComponentBuilder("").broadcast()
+
+                Bukkit.getOnlinePlayers().forEach {
+                    it.playSound(it.location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.AMBIENT, .5F, .5F)
+                }
             }, 30 * 20)
         }
     }
@@ -372,10 +385,39 @@ class GameListener : Listener {
                 e.printStackTrace()
             }
         } else {
-            if (player.inventory.getItem(event.newSlot)!!.type == Material.FLINT_AND_STEEL) {
+            val itemMeta = player.inventory.getItem(event.newSlot)?.itemMeta ?: return
+            if (itemMeta.displayName == "§9Zapalovač §7(podrž pro použití)") {
                 gamePlayer.holdingFlash()
             }
         }
     }
 
+    @EventHandler
+    fun onLightPickUp(event: EntityPickupItemEvent) {
+        if (event.entity !is Player) return
+
+        val gamePlayer = (event.entity as Player).getGamePlayer() ?: return
+
+        if (gamePlayer !is Survivor) {
+            event.isCancelled = true
+            return
+        }
+
+        if (gamePlayer.player.inventory.itemInMainHand == event.item.itemStack) {
+            if (event.item.itemStack.isSimilar(ItemManager.flash)) {
+                try {
+                    gamePlayer.giveBlindness()
+                    gamePlayer.survivorFlashTask.cancel()
+                } catch (e: Exception) {
+                    if (e is java.lang.IllegalStateException) return
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    fun onInteract(event: InventoryClickEvent) {
+        if (event.clickedInventory?.type == InventoryType.PLAYER && !event.whoClicked.isOp) event.isCancelled = true
+    }
 }

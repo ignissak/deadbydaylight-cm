@@ -55,6 +55,7 @@ repositories {
     maven { url = "https://maven.enginehub.org/repo/" }
     maven { url = "https://mvn.intellectualsites.com/content/repositories/releases/" } // FAWE
     maven { url = "https://repo.citizensnpcs.co" }
+    maven { url = "https://repo.md-5.net/content/groups/public/" }
 }
 
 dependencies {
@@ -74,6 +75,7 @@ dependencies {
     compileOnly 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.4'
     compileOnly 'net.minecord:xoreboardutil:1.14.4'
     compileOnly 'net.citizensnpcs:citizens:2.0.27-SNAPSHOT'
+    compileOnly 'LibsDisguises:LibsDisguises:10.0.18'
 
     // WE & WG
     compileOnly('com.sk89q.worldguard:worldguard-bukkit:7.0.3')

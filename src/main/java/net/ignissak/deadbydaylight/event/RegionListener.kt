@@ -1,6 +1,7 @@
 package net.ignissak.deadbydaylight.event
 
 import cz.craftmania.craftcore.spigot.events.worldguard.RegionEnterEvent
+import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.interfaces.GameRegion
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Survivor
@@ -22,6 +23,9 @@ class RegionListener : Listener {
                 event.isCancelled = true
                 return
             }
+
+            if (DeadByDaylight.gameManager.gates.none { it.isOpened })
+                return
 
             if (gamePlayer.survivalState == SurvivalState.PLAYING) {
                 gamePlayer.win()

@@ -6,7 +6,7 @@ import net.ignissak.deadbydaylight.utils.Log
 import org.bukkit.Location
 import org.bukkit.Material
 
-class Gate(private val region: GameRegion, private val material: Material) {
+class Gate(val region: GameRegion, private val material: Material) {
 
     var isOpened = false
     private val deletedBlocks: MutableList<Location> = mutableListOf()
@@ -48,7 +48,7 @@ class Gate(private val region: GameRegion, private val material: Material) {
 
         for (deletedBlock in deletedBlocks) {
             if (deletedBlock.block.type == Material.AIR) {
-                deletedBlock.block.setType(material, false)
+                deletedBlock.block.setType(material, true)
             }
         }
 

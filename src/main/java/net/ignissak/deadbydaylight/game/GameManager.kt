@@ -144,10 +144,10 @@ class GameManager {
 
     private fun startGame() {
         // TEST: Start game
-        Title("§c§lHALLOWEEN", "§fNačítaní hry...", 10, 180, 10).broadcast()
 
         startedAt = System.currentTimeMillis()
         endsAt = System.currentTimeMillis() + (15 * 60 * 1000)
+        println((endsAt - startedAt))
         startingPlayers = PlayerManager.players.size
         gameState = GameState.INGAME
         isDisabledMoving = true
@@ -452,7 +452,7 @@ class GameManager {
         }
     }
 
-    fun getGameTimeFormatted(): String = DurationFormatUtils.formatDuration(endsAt - startedAt, "mm:ss")
+    fun getGameTimeFormatted(): String = DurationFormatUtils.formatDuration((endsAt - startedAt), "mm:ss")
 
     fun getLootChestAt(location: Location): LootChest? = lootChests.find { it.location.block.location == location }
 

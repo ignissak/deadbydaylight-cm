@@ -13,6 +13,7 @@ import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.task.BoardUpdateTask
 import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.Log
+import net.ignissak.deadbydaylight.utils.getSurvivor
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import java.lang.Exception
@@ -69,6 +70,10 @@ class DeadByDaylight : JavaPlugin() {
 
         gameManager.gates.forEach { it.close() }
         gameManager.lootChests.forEach { it.close() }
+
+        PlayerManager.survivorTeam.entries.forEach {
+            it.getSurvivor()?.destroyNPC()
+        }
 
         gameManager.clearEntities()
 

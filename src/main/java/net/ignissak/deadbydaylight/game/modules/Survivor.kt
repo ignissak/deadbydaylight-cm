@@ -1,5 +1,6 @@
 package net.ignissak.deadbydaylight.game.modules
 
+import cz.craftmania.craftcore.spigot.builders.items.ItemBuilder
 import cz.craftmania.craftcore.spigot.messages.Title
 import net.citizensnpcs.api.CitizensAPI
 import net.citizensnpcs.api.npc.NPC
@@ -10,6 +11,7 @@ import net.ignissak.deadbydaylight.game.ItemManager
 import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.interfaces.GameRegion
+import net.ignissak.deadbydaylight.game.interfaces.GameState
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.task.SurvivorDyingTask
 import net.ignissak.deadbydaylight.game.task.SurvivorFlashTask
@@ -17,6 +19,7 @@ import net.ignissak.deadbydaylight.utils.*
 import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.inventory.meta.CompassMeta
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
@@ -55,7 +58,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))
     }
 
-    fun isBeingRevived(): Boolean = DeadByDaylight.gameManager.revivingTasks.stream().anyMatch { it.survivorToBeRevived.player.uniqueId == this.player.uniqueId }
+    fun isBeingRevived(): Boolean = DeadByDaylight.gameManager.revivingTasks.stream().anyMatch { it.survivorToBeRevived.player == this.player }
 
     /**
      * @return True if player was downed
@@ -85,7 +88,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     private fun down(killer: Killer) {
-        // TEST: Implement
+        // TODO: Compass for other players
         killer.gameStats.killer_downs += 1
         killer.playerDowns += 1
 
@@ -117,6 +120,7 @@ class Survivor(player: Player) : GamePlayer(player) {
 
             this.hideFromOthers()
 
+            this.survivorDyingTask = SurvivorDyingTask(this)
             DeadByDaylight.instance.let { this.survivorDyingTask.runTaskTimer(it, 0, 20) }
 
             // Teleport above corpse
@@ -125,16 +129,21 @@ class Survivor(player: Player) : GamePlayer(player) {
             locToTeleport.pitch = 90F
             player.teleport(locToTeleport)
         }
+
+        PlayerManager.survivorTeam.entries.forEach { it.getSurvivor()?.compassLeadingToDyingSurvivor() }
     }
 
     fun revive(revivedBy: Survivor) {
         // TEST: Implement
+        this.survivalState = SurvivalState.PLAYING
         this.showToOthers()
-        Title("§a§lOŽIVEN", "§fOživil tě §7" + revivedBy.player.name, 5, 20, 5).send(player)
 
         player.health = 3.0
         player.level = 0
-        player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))
+        player.allowFlight = false
+        player.isFlying = false
+
+        this.giveBlindness()
 
         Utils.broadcast(true, "${revivedBy.player.name} oživil ${player.name}.")
 
@@ -142,6 +151,10 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         player.playSound(player.location, Sound.ENTITY_CAT_AMBIENT, SoundCategory.AMBIENT, .5F, 1F)
         previousLocation?.let { player.teleport(it) }
+
+        Title("§a§lOŽIVEN", "§fOživil tě §7" + revivedBy.player.name, 5, 20, 5).send(player)
+
+        PlayerManager.survivorTeam.entries.forEach { it.getSurvivor()?.compassLeadingToDyingSurvivor() }
     }
 
     fun die(killer: Killer) {
@@ -163,8 +176,7 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         gameStats.playtime += endedAt!! - DeadByDaylight.gameManager.startedAt
 
-        npc.destroy()
-        CitizensAPI.getNPCRegistry().deregister(this.npc)
+        this.destroyNPC()
 
         this.giveCoins()
         this.updateStats()
@@ -179,6 +191,8 @@ class Survivor(player: Player) : GamePlayer(player) {
                 }
             }
         }
+
+        PlayerManager.survivorTeam.entries.forEach { it.getSurvivor()?.compassLeadingToDyingSurvivor() }
     }
 
     fun win() {
@@ -194,6 +208,8 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         this.coins += 5
         this.player.sendMessage("§e+5CC §8[Útěk]")
+        this.player.gameMode = GameMode.SPECTATOR
+        this.player.inventory.clear()
 
         this.npc.destroy()
         CitizensAPI.getNPCRegistry().deregister(this.npc)
@@ -202,6 +218,27 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.updateStats()
 
         DeadByDaylight.gameManager.tryEnd()
+    }
+
+    private fun compassLeadingToDyingSurvivor() {
+        if (!DeadByDaylight.playerManager.isAnySurvivorDying() || DeadByDaylight.gameManager.gameState != GameState.INGAME) {
+            // No survivor is dying, remove compass
+            player.inventory.remove(Material.COMPASS)
+            return
+        }
+
+        val compassItem = ItemBuilder(Material.COMPASS, 1)
+                .setName("§9Kompas")
+                .setLore("", "§7Tento kompas tě zavede", "§7za přeživším, který umíra.", "")
+                .hideAllFlags()
+                .build()
+
+        val compassMeta = compassItem.itemMeta!! as CompassMeta
+
+        compassMeta.lodestone = DeadByDaylight.playerManager.getSurvivorsDying().first()?.previousLocation
+        compassItem.itemMeta = compassMeta
+
+        player.inventory.setItem(8, compassItem)
     }
 
     fun showHealthTitle() {
@@ -227,7 +264,6 @@ class Survivor(player: Player) : GamePlayer(player) {
         player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 80,4, false, false, false))
 
         Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
-            player.removePotionEffect(PotionEffectType.SPEED)
             if (this.survivalState == SurvivalState.PLAYING)
                 this.giveBlindness()
         }, 80)
@@ -245,4 +281,15 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.survivorFlashTask = SurvivorFlashTask(this)
         this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 6)
     }
+
+    fun destroyNPC() {
+        this.npc.destroy()
+        CitizensAPI.getNPCRegistry().deregister(this.npc)
+    }
+
+    override fun toString(): String {
+        return "Survivor(nick=${player.name}, survivalState=$survivalState)"
+    }
+
+
 }

@@ -15,7 +15,10 @@ class SurvivorDyingTask(private val survivor: Survivor) : BukkitRunnable() {
     private var remainingTime: Int = 20
 
     override fun run() {
-        if (survivor.survivalState != SurvivalState.DYING) this.cancel()
+        if (survivor.survivalState != SurvivalState.DYING) {
+            this.cancel()
+            return
+        }
         if (!DeadByDaylight.playerManager.isAnySurvivorAlive()) {
             remainingTime = 1
         }

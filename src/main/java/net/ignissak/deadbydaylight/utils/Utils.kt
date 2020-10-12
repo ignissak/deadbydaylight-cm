@@ -123,7 +123,7 @@ fun Player?.getGamePlayer(): GamePlayer? {
 fun Team.isFull(): Boolean = this.name == "killer" && this.entries.size == 1 || this.name == "survivors" && this.entries.size == 4
 
 fun Int.remainingTo(int: Int): Int {
-    if (int < this) throw IllegalArgumentException("Argument cannot be smaller.")
+    if (int < this) return 0
     return int - this
 }
 

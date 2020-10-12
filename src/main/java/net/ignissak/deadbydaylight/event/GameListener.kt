@@ -28,7 +28,6 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.*
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
@@ -100,6 +99,7 @@ class GameListener : Listener {
         if (event.action == Action.RIGHT_CLICK_BLOCK) {
             if (event.clickedBlock == null) return
             if (gamePlayer !is Survivor) {
+                if (gamePlayer.player.inventory.itemInMainHand.type == Material.FISHING_ROD) return
                 event.isCancelled = true
                 return
             }
@@ -129,8 +129,6 @@ class GameListener : Listener {
                         event.isCancelled = true
                         return
                     }
-                    println(clickedBlock.location)
-                    println(DeadByDaylight.gameManager.generators)
                     val generator: Generator? = DeadByDaylight.gameManager.getGeneratorAt(clickedBlock.location)
 
                     if (generator == null) {
@@ -206,7 +204,7 @@ class GameListener : Listener {
             event.isCancelled = true
             return
         }
-        if (DeadByDaylight.gameManager.gameState != GameState.INGAME) {
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) {
             event.isCancelled = true
             return
         }
@@ -276,7 +274,7 @@ class GameListener : Listener {
     @EventHandler
     fun onDamage(event: EntityDamageEvent) {
         if (event.entity !is Player) return
-        if (DeadByDaylight.gameManager.gameState != GameState.INGAME) event.isCancelled = true
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) event.isCancelled = true
         if (event.cause == EntityDamageEvent.DamageCause.FALL || event.cause == EntityDamageEvent.DamageCause.STARVATION) event.isCancelled = true
     }
 
@@ -296,14 +294,19 @@ class GameListener : Listener {
         if (entityGamePlayer is Survivor && damagerGamePlayer is Killer && DeadByDaylight.gameManager.gameState == GameState.INGAME) {
             val survivor: Survivor = entityGamePlayer
             val killer: Killer = damagerGamePlayer
+
             if (!damagerGamePlayer.player.inventory.itemInMainHand.isSimilar(ItemManager.axe)) {
                 event.isCancelled = true
                 return
             }
-            if (survivor.survivalState != SurvivalState.PLAYING) return
-            event.damage = 0.0
-            val down: Boolean = survivor.hit(killer)
+            if (survivor.survivalState != SurvivalState.PLAYING) {
+                event.damage = .0
+                event.isCancelled = true
+                return
+            }
 
+            event.damage = .0
+            val down: Boolean = survivor.hit(killer)
 
             if (down) {
                 killer.coins += 3
@@ -347,12 +350,18 @@ class GameListener : Listener {
 
         if (gamePlayer.survivalState != SurvivalState.PLAYING) return
         if (!DeadByDaylight.playerManager.isAnySurvivorDying()) return
-        val survivorsDying = DeadByDaylight.playerManager.getSurvivorsDying() ?: return
+        val survivorsDying = DeadByDaylight.playerManager.getSurvivorsDying()
 
-        if (survivorsDying.stream().anyMatch { it.previousLocation?.distance(gamePlayer.player.location)!! < 1 }) {
-            val survivorToRevive = survivorsDying.stream().filter { it.player.location.distance(gamePlayer.player.location) < 1 }.findFirst().get()
+        println(survivorsDying)
+
+        if (survivorsDying.stream().anyMatch { it?.previousLocation?.distance(gamePlayer.player.location)!! < 2 }) {
+            val optionalSurvivorToRevive = survivorsDying.stream().filter { it?.player?.location?.distance(gamePlayer.player.location)!! < 2 }.findFirst()
+            if (!optionalSurvivorToRevive.isPresent) return
+
+            val survivorToRevive = optionalSurvivorToRevive.get()
 
             val survivorRevivingSurvivorTask = SurvivorRevivingSurvivorTask(gamePlayer, survivorToRevive)
+            DeadByDaylight.gameManager.revivingTasks.add(survivorRevivingSurvivorTask)
             DeadByDaylight.instance.let { survivorRevivingSurvivorTask.runTaskTimer(it, 0, 10) }
         }
     }
@@ -367,14 +376,15 @@ class GameListener : Listener {
             // TODO: Change messages
 
             TextComponentBuilder("").broadcast()
-            TextComponentBuilder("§e§lBRÁNY SE OTEVÍRAJÍ ZA 30 VTEŘIN!", true).broadcast()
+            TextComponentBuilder("§7Potřebný počet generátorů bylo opraveno,", true).broadcast()
+            TextComponentBuilder("§ebrány se otevřou za 30 vteřin!", true).broadcast()
             TextComponentBuilder("").broadcast()
 
             Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
                 DeadByDaylight.gameManager.gates.forEach { it1 -> it1.open() }
 
                 TextComponentBuilder("").broadcast()
-                TextComponentBuilder("§a§lBRÁNY SE OTEVŘELI!", true).broadcast()
+                TextComponentBuilder("§a§lBrány se otevřeli!", true).broadcast()
                 TextComponentBuilder("").broadcast()
 
                 Bukkit.getOnlinePlayers().forEach {

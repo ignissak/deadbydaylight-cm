@@ -14,6 +14,7 @@ import net.ignissak.deadbydaylight.game.modules.Gate
 import net.ignissak.deadbydaylight.game.modules.Generator
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.LootChest
+import net.ignissak.deadbydaylight.game.task.FrequentTryEndTask
 import net.ignissak.deadbydaylight.game.task.LocationTask
 import net.ignissak.deadbydaylight.game.task.RunningGeneratorTask
 import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
@@ -39,8 +40,8 @@ class GameManager {
     var countdown: Int = 30
 
     var generators: MutableList<Generator> = mutableListOf()
+    // TODO: Place another chests
     var lootChests: MutableList<LootChest> = mutableListOf()
-    // TEST: Functionality
     var drops: MutableList<Location> = mutableListOf()
 
     var lobbyLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.lobby"))
@@ -52,6 +53,7 @@ class GameManager {
     val gates: MutableList<Gate> = mutableListOf()
 
     var locationTask: LocationTask = LocationTask()
+    var checkTask: FrequentTryEndTask = FrequentTryEndTask()
 
     // Loading locations for loot chests, generators and drops
     init {
@@ -147,7 +149,6 @@ class GameManager {
 
         startedAt = System.currentTimeMillis()
         endsAt = System.currentTimeMillis() + (15 * 60 * 1000)
-        println((endsAt - startedAt))
         startingPlayers = PlayerManager.players.size
         gameState = GameState.INGAME
         isDisabledMoving = true
@@ -277,6 +278,7 @@ class GameManager {
                     }
 
                     locationTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
+                    checkTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
 
                     this.cancel()
                     return
@@ -350,21 +352,29 @@ class GameManager {
 
     fun tryEnd(): Boolean {
         // TEST
-        if (PlayerManager.survivorTeam.entries.stream().noneMatch{ it.getSurvivor()?.survivalState == SurvivalState.PLAYING} || PlayerManager.survivorTeam.entries.size == 0 || PlayerManager.killerTeam.entries.size == 0) {
-            endGame()
+        if (gameState != GameState.INGAME) return false
+        if (PlayerManager.survivorTeam.entries.stream().noneMatch{ it.getSurvivor()?.survivalState == SurvivalState.PLAYING}
+                || PlayerManager.survivorTeam.entries.size == 0
+                || PlayerManager.killerTeam.entries.size == 0
+                || endsAt < System.currentTimeMillis()) {
+            this.endGame()
             return true
         }
         return false
     }
 
-    private fun endGame() {
+    private fun endGame(endReason: EndReason? = null) {
         if (gameState == GameState.ENDING) return
-        // TODO
         endedAt = System.currentTimeMillis()
         gameState = GameState.ENDING
 
         try {
             runningGeneratorTask.cancel()
+
+        } catch (ignored: IllegalStateException) {}
+
+        try {
+            checkTask.cancel()
         } catch (ignored: IllegalStateException) {}
 
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
@@ -385,6 +395,8 @@ class GameManager {
 
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§c§lKONEC HRY", true).broadcast()
+        if (endReason == EndReason.TIME_RUN_OUT)
+             TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§fDěkujeme za zahrání naší", true).broadcast()
         TextComponentBuilder("§fHalloween minihry.", true).broadcast()
@@ -452,7 +464,7 @@ class GameManager {
         }
     }
 
-    fun getGameTimeFormatted(): String = DurationFormatUtils.formatDuration((endsAt - startedAt), "mm:ss")
+    fun getGameTimeFormatted(): String = DurationFormatUtils.formatDuration((endsAt - System.currentTimeMillis()), "mm:ss")
 
     fun getLootChestAt(location: Location): LootChest? = lootChests.find { it.location.block.location == location }
 

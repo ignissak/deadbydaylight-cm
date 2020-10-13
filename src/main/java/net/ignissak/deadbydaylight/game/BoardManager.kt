@@ -97,7 +97,6 @@ class BoardManager {
     }
 
     // "\u25A0"
-    // TEST: Separator
     private fun getActivatedGenerators(): String {
         val stringBuilder = StringBuilder()
         var i = 1

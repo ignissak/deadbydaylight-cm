@@ -10,10 +10,7 @@ import cz.craftmania.craftcore.spigot.messages.Title
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.api.event.GameStartEvent
 import net.ignissak.deadbydaylight.game.interfaces.*
-import net.ignissak.deadbydaylight.game.modules.Gate
-import net.ignissak.deadbydaylight.game.modules.Generator
-import net.ignissak.deadbydaylight.game.modules.Killer
-import net.ignissak.deadbydaylight.game.modules.LootChest
+import net.ignissak.deadbydaylight.game.modules.*
 import net.ignissak.deadbydaylight.game.task.FrequentTryEndTask
 import net.ignissak.deadbydaylight.game.task.LocationTask
 import net.ignissak.deadbydaylight.game.task.RunningGeneratorTask
@@ -387,6 +384,10 @@ class GameManager {
         PlayerManager.players.values.forEach {
             if (it is Killer) {
                 it.gameStats.playtime += System.currentTimeMillis() - startedAt
+            } else if (it is Survivor) {
+                if (it.survivalState == SurvivalState.PLAYING) {
+                    it.gameStats.playtime += System.currentTimeMillis() - startedAt
+                }
             }
             it.giveCoins()
 

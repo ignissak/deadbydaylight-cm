@@ -108,7 +108,7 @@ class Survivor(player: Player) : GamePlayer(player) {
 
             TextComponentBuilder("").send(PlayerManager.survivorTeam)
             TextComponentBuilder("§c${player.name} byl smrtělne zraněn!", true).send(PlayerManager.survivorTeam)
-            TextComponentBuilder("§8[${GameRegion.getRegionAt(previousLocation!!)?.title}]", true).send(PlayerManager.survivorTeam) // TEST: Location
+            TextComponentBuilder("§8[${GameRegion.getRegionAt(previousLocation!!)?.title}]", true).send(PlayerManager.survivorTeam)
             TextComponentBuilder("").send(PlayerManager.survivorTeam)
 
             val npcSpawnLocation = previousLocation!!.clone()

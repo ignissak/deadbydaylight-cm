@@ -36,8 +36,6 @@ class Gate(val region: GameRegion, private val material: Material) {
                 loc.block.setType(Material.AIR, false)
             }
         }
-
-        // TODO
     }
 
     fun close() {

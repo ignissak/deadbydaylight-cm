@@ -384,6 +384,9 @@ class GameManager {
         PlayerManager.players.values.forEach {
             if (it is Killer) {
                 it.gameStats.playtime += System.currentTimeMillis() - startedAt
+                if (it.playerKills >= 2) {
+                    it.gameStats.killer_wins += 1
+                }
             } else if (it is Survivor) {
                 if (it.survivalState == SurvivalState.PLAYING) {
                     it.gameStats.playtime += System.currentTimeMillis() - startedAt

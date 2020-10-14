@@ -36,7 +36,7 @@ class Generator(val location: Location) {
             gamePlayer.player.inventory.setItem(0, null)
             location.world?.playSound(location, Sound.ENTITY_CHICKEN_EGG, .5F, .0F)
 
-            gamePlayer.player.sendMessage("§e+1CC §8[Doplnění paliva do generátoru]")
+            gamePlayer.player.sendMessage("§e+1 CC §8[Doplnění paliva do generátoru]")
             this.updateHologram()
 
             if (this.progress == 4)
@@ -71,9 +71,8 @@ class Generator(val location: Location) {
         this.contributors.distinct().forEach { it ->
             if (it.getGamePlayer() == null) return
             it.getGamePlayer()!!.gameStats.survivor_generators_powered += 1
-            val coinsToAdd: Int = 5 * this.contributors.count { it == it.getGamePlayer()!!.player.name }
-            it.getGamePlayer()!!.coins += coinsToAdd
-            it.getGamePlayer()!!.player.sendMessage("§e+${coinsToAdd}CC §8[Opravení generátoru]")
+            it.getGamePlayer()!!.coins += 5
+            it.getGamePlayer()!!.player.sendMessage("§e+5 CC §8[Opravení generátoru]")
         }
 
         Bukkit.getPluginManager().callEvent(GeneratorPowerUpEvent(this))

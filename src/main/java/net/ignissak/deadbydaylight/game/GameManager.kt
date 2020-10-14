@@ -11,10 +11,7 @@ import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.api.event.GameStartEvent
 import net.ignissak.deadbydaylight.game.interfaces.*
 import net.ignissak.deadbydaylight.game.modules.*
-import net.ignissak.deadbydaylight.game.task.FrequentTryEndTask
-import net.ignissak.deadbydaylight.game.task.LocationTask
-import net.ignissak.deadbydaylight.game.task.RunningGeneratorTask
-import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
+import net.ignissak.deadbydaylight.game.task.*
 import net.ignissak.deadbydaylight.utils.*
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.*
@@ -28,7 +25,7 @@ import java.util.stream.Collectors
 class GameManager {
 
     var gameState: GameState = GameState.LOBBY
-    private val minSurvivors = 3
+    private val minSurvivors = 4
     var isDisabledMoving: Boolean = false
     var startedAt: Long = 0
     private var endsAt: Long = 0
@@ -92,7 +89,7 @@ class GameManager {
 
     }
 
-    private fun canStart(): Boolean = PlayerManager.players.size > this.minSurvivors && gameState == GameState.LOBBY
+    private fun canStart(): Boolean = PlayerManager.players.size >= this.minSurvivors
 
     fun tryStart() {
         if (!canStart()) return
@@ -101,9 +98,11 @@ class GameManager {
     }
 
     private fun startCountdown() {
+        if (this.gameState == GameState.STARTING) return
         this.gameState = GameState.STARTING
 
-        DeadByDaylight.instance.let { DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(it, 0L, 20L) }
+        DeadByDaylight.boardUpdateTask = BoardUpdateTask()
+        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 0L, 20L)
 
         val run: BukkitRunnable = object : BukkitRunnable() {
             override fun run() {
@@ -144,14 +143,14 @@ class GameManager {
         // TEST: Start game
 
         startedAt = System.currentTimeMillis()
-        endsAt = System.currentTimeMillis() + (15 * 60 * 1000) + (15 * 1000)
+        endsAt = System.currentTimeMillis() + (10 * 60 * 1000) + (15 * 1000)
         startingPlayers = PlayerManager.players.size
         gameState = GameState.INGAME
         isDisabledMoving = true
         this.clearEntities()
 
         // Increase statistics
-        PlayerManager.players.values.forEach{ it.gameStats.games_played += 1 }
+        PlayerManager.players.values.forEach { it.gameStats.games_played += 1 }
 
         this.createTeams()
 
@@ -288,7 +287,8 @@ class GameManager {
                 countdown--
             }
         }
-        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 0, 20)
+        DeadByDaylight.boardUpdateTask = BoardUpdateTask()
+        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 20, 20)
         DeadByDaylight.instance.let { run.runTaskTimer(it, 0L, 20L) }
     }
 
@@ -348,7 +348,7 @@ class GameManager {
     fun tryEnd(): Boolean {
         // TEST
         if (gameState != GameState.INGAME) return false
-        if (PlayerManager.survivorTeam.entries.stream().noneMatch{ it.getSurvivor()?.survivalState == SurvivalState.PLAYING}
+        if (PlayerManager.survivorTeam.entries.stream().noneMatch { it.getSurvivor()?.survivalState == SurvivalState.PLAYING }
                 || PlayerManager.survivorTeam.entries.size == 0
                 || PlayerManager.killerTeam.entries.size == 0
                 || endsAt < System.currentTimeMillis()) {
@@ -366,11 +366,13 @@ class GameManager {
         try {
             runningGeneratorTask.cancel()
 
-        } catch (ignored: IllegalStateException) {}
+        } catch (ignored: IllegalStateException) {
+        }
 
         try {
             checkTask.cancel()
-        } catch (ignored: IllegalStateException) {}
+        } catch (ignored: IllegalStateException) {
+        }
 
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
         DeadByDaylight.boardManager.updateAllPlayers()
@@ -384,6 +386,9 @@ class GameManager {
                 it.gameStats.playtime += System.currentTimeMillis() - startedAt
                 if (it.playerKills >= 2) {
                     it.gameStats.killer_wins += 1
+
+                    it.player.sendMessage("§e+15 CC §8[Výhra]")
+                    it.coins += 15
                 }
             } else if (it is Survivor) {
                 if (it.survivalState == SurvivalState.PLAYING) {
@@ -398,7 +403,7 @@ class GameManager {
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§c§lKONEC HRY", true).broadcast()
         if (endReason == EndReason.TIME_RUN_OUT)
-             TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
+            TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§fDěkujeme za zahrání naší", true).broadcast()
         TextComponentBuilder("§fHalloween minihry.", true).broadcast()
@@ -466,7 +471,11 @@ class GameManager {
         }
     }
 
-    fun getGameTimeFormatted(): String = DurationFormatUtils.formatDuration((endsAt - System.currentTimeMillis()), "mm:ss")
+    fun getGameTimeFormatted(): String {
+        if (endsAt - System.currentTimeMillis() < 0)
+            return "00:00"
+        return DurationFormatUtils.formatDuration((endsAt - System.currentTimeMillis()), "mm:ss")
+    }
 
     fun getLootChestAt(location: Location): LootChest? = lootChests.find { it.location.block.location == location }
 
@@ -475,6 +484,8 @@ class GameManager {
     fun clearEntities() {
         lobbyLocation?.world?.entities?.forEach { if (it !is Player) it.remove() }
     }
+
+    fun areGatesOpened(): Boolean = gates.all { it.isOpened }
 
     companion object {
         val runningGeneratorTask: RunningGeneratorTask = RunningGeneratorTask()

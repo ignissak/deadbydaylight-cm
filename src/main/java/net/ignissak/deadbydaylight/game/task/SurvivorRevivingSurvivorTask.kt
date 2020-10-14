@@ -31,7 +31,7 @@ class SurvivorRevivingSurvivorTask(private val survivorReviving: Survivor, val s
             survivorReviving.revivedPlayers += 1
 
             survivorReviving.coins += 3
-            survivorReviving.player.sendMessage("§e+3CC §8[Oživení spoluhráče]")
+            survivorReviving.player.sendMessage("§e+3 CC §8[Oživení spoluhráče]")
 
             DeadByDaylight.gameManager.revivingTasks.remove(this)
             this.cancel()

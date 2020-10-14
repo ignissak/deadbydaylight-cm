@@ -113,7 +113,7 @@ class DeadByDaylight : JavaPlugin() {
         lateinit var playerManager: PlayerManager
         lateinit var boardManager: BoardManager
         val prefix: String = org.bukkit.ChatColor.translateAlternateColorCodes('&', "${Constants.halloweenColor}&lHalloween &8| &7 ")
-        val boardUpdateTask: BoardUpdateTask = BoardUpdateTask()
+        var boardUpdateTask: BoardUpdateTask = BoardUpdateTask()
         lateinit var regionContainer: RegionContainer
     }
 }

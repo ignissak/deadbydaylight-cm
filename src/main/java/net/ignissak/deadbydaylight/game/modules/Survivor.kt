@@ -84,7 +84,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         vector.y += .25
 
         player.velocity = vector
-        this.giveSpeed()
+        this.giveSpeed(0)
     }
 
     private fun down(killer: Killer) {
@@ -107,7 +107,7 @@ class Survivor(player: Player) : GamePlayer(player) {
             player.health = .5
 
             TextComponentBuilder("").send(PlayerManager.survivorTeam)
-            TextComponentBuilder("§c${player.name} byl smrtělne zraněn!", true).send(PlayerManager.survivorTeam)
+            TextComponentBuilder("§c${player.name} byl smrtelně zraněn!", true).send(PlayerManager.survivorTeam)
             TextComponentBuilder("§8[${GameRegion.getRegionAt(previousLocation!!)?.title}]", true).send(PlayerManager.survivorTeam)
             TextComponentBuilder("").send(PlayerManager.survivorTeam)
 
@@ -163,11 +163,12 @@ class Survivor(player: Player) : GamePlayer(player) {
         killer.playerKills += 1
         this.survivalState = SurvivalState.SPECTATING
 
+        TextComponentBuilder(DeadByDaylight.prefix + "${player.name} zemřel.")
         Title("§c§lGAME OVER", "Tady pro tebe hra končí.", 10, 60, 10).send(player)
 
         PlayerManager.killerTeam.entries.forEach {
             it.getKiller()?.coins = it.getKiller()?.coins?.plus(1)!!
-            it.getPlayer()?.sendMessage("§e+1CC §8[Zabití survivora]")
+            it.getPlayer()?.sendMessage("§e+1 CC §8[Zabití survivora]")
         }
 
         player.gameMode = GameMode.SPECTATOR
@@ -180,6 +181,7 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         this.giveCoins()
         this.updateStats()
+        this.removePotionEffects()
 
         val ending = DeadByDaylight.gameManager.tryEnd()
 
@@ -187,7 +189,11 @@ class Survivor(player: Player) : GamePlayer(player) {
             player.inventory.contents.forEach {
                 if (it != null) {
                     if (it.type == Material.AIR) return@forEach
-                    previousLocation?.world?.dropItem(previousLocation!!, it)
+                    if (it.type == Material.COMPASS) return@forEach
+                    val dropItem = previousLocation?.world?.dropItem(previousLocation!!, it)
+
+                    dropItem?.customName = it.itemMeta!!.displayName.split(" ")[0]
+                    dropItem?.isCustomNameVisible = true
                 }
             }
         }
@@ -203,11 +209,11 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.gameStats.survivor_wins += 1
         this.gameStats.playtime += endedAt!! - DeadByDaylight.gameManager.startedAt
 
-        TextComponentBuilder(DeadByDaylight.prefix + "")
+        TextComponentBuilder(DeadByDaylight.prefix + "${player.name} utekl.").broadcast()
         Title("§a§lUTEKL JSI", "Skvělá práce.", 10, 60, 10).send(player)
 
         this.coins += 5
-        this.player.sendMessage("§e+5CC §8[Útěk]")
+        this.player.sendMessage("§e+5 CC §8[Útěk]")
         this.player.gameMode = GameMode.SPECTATOR
         this.player.inventory.clear()
 
@@ -241,10 +247,11 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         compassMeta.lodestone = survivor.previousLocation
         compassMeta.isLodestoneTracked = true
+        compassMeta.enchants.forEach { compassMeta.removeEnchant(it.key) }
         compassItem.itemMeta = compassMeta
 
-        player.inventory.setItem(8, compassItem)
         player.compassTarget = survivor.previousLocation!!
+        player.inventory.setItem(8, compassItem)
     }
 
     fun showHealthTitle() {
@@ -262,21 +269,18 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun giveBlindness() {
+        if (DeadByDaylight.gameManager.areGatesOpened()) return
+        if (survivalState != SurvivalState.PLAYING) return
         player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))
     }
 
-    fun giveSpeed() {
+    fun giveSpeed(amplifier: Int = 4) {
         player.removePotionEffect(PotionEffectType.BLINDNESS)
-        player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 80,4, false, false, false))
+        player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 80, amplifier, false, false, false))
 
         Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
-            if (this.survivalState == SurvivalState.PLAYING)
-                this.giveBlindness()
+            this.giveBlindness()
         }, 80)
-    }
-
-    private fun removePotionEffects() {
-        player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
     }
 
     fun light() {

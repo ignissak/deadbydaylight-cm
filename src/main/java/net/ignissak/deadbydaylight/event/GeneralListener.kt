@@ -63,9 +63,9 @@ class GeneralListener : Listener {
         if (craftPlayer is Killer) {
             event.isCancelled = true
             ChatInfo.error(event.player, "Survivoři ti nerozumí.")
-        } else {
-            PlayerManager.survivorTeam.entries.forEach { it.getPlayer()?.sendMessage(String.format("§c${event.player.name}§8: §7%2\$s", event.player, event.message)) }
-            DeadByDaylight.instance.logger.info(String.format("§c${event.player.name}§8: §7%2\$s", event.player, event.message))
+        } else if (craftPlayer is Survivor) {
+            PlayerManager.survivorTeam.entries.forEach { it.getPlayer()?.sendMessage(String.format((if (craftPlayer.survivalState == SurvivalState.SPECTATING) "§7[Mrtvý] " else "") + "§c${event.player.name}§8: §7%2\$s", event.player, event.message)) }
+            DeadByDaylight.instance.logger.info(String.format((if (craftPlayer.survivalState == SurvivalState.SPECTATING) "§7[Mrtvý] " else "") + "§c${event.player.name}§8: §7%2\$s", event.player, event.message))
 
             event.isCancelled = true
         }

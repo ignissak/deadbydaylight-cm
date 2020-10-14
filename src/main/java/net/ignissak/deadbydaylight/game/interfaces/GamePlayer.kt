@@ -100,6 +100,10 @@ abstract class GamePlayer(val player: Player) {
         DisguiseAPI.undisguiseToAll(this.player)
     }
 
+    fun removePotionEffects() {
+        player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
+    }
+
     override fun toString(): String {
         return "GamePlayer(player=$player, gameStats=$gameStats, rolePreference=$rolePreference, coins=$coins)"
     }

@@ -6,6 +6,7 @@ import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.api.event.GeneratorPowerUpEvent
 import net.ignissak.deadbydaylight.game.GameManager
 import net.ignissak.deadbydaylight.game.ItemManager
+import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.interfaces.GameState
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
@@ -16,6 +17,7 @@ import net.ignissak.deadbydaylight.game.modules.Survivor
 import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
 import net.ignissak.deadbydaylight.utils.TextComponentBuilder
 import net.ignissak.deadbydaylight.utils.getGamePlayer
+import net.ignissak.deadbydaylight.utils.getSurvivor
 import net.minecraft.server.v1_16_R2.PacketPlayOutCollect
 import org.bukkit.*
 import org.bukkit.block.Block
@@ -33,6 +35,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.meta.Damageable
+import org.bukkit.potion.PotionEffectType
 import java.lang.Exception
 
 
@@ -86,8 +89,8 @@ class GameListener : Listener {
     fun onBlockClick(event: PlayerInteractEvent) {
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME) return
 
-        println(event.action)
-        println(event.clickedBlock)
+        //println(event.action)
+        //println(event.clickedBlock)
 
         val player = event.player
         val gamePlayer = DeadByDaylight.playerManager.getGamePlayer(player) ?: return
@@ -227,8 +230,8 @@ class GameListener : Listener {
                 item.remove()
                 player.inventory.setItem(0, itemStack)
 
-                gamePlayer.coins += 1
-                player.sendMessage("§e+1CC §8[Nalezení baterie]")
+                //gamePlayer.coins += 1
+                //player.sendMessage("§e+1CC §8[Nalezení baterie]")
                 return
             } else event.isCancelled = true
         } else if (itemStack.isSimilar(ItemManager.bandage)) {
@@ -238,8 +241,8 @@ class GameListener : Listener {
                 item.remove()
                 player.inventory.setItem(1, itemStack)
 
-                gamePlayer.coins += 1
-                player.sendMessage("§e+1CC §8[Nalezení bandáže]")
+                //gamePlayer.coins += 1
+                //player.sendMessage("§e+1CC §8[Nalezení bandáže]")
                 return
             } else event.isCancelled = true
         } else if (itemStack.isSimilar(ItemManager.flash)) {
@@ -249,8 +252,8 @@ class GameListener : Listener {
                 item.remove()
                 player.inventory.setItem(2, itemStack)
 
-                gamePlayer.coins += 1
-                player.sendMessage("§e+1CC §8[Nalezení zapalovače]")
+                //gamePlayer.coins += 1
+                //player.sendMessage("§e+1CC §8[Nalezení zapalovače]")
                 return
             } else if (player.inventory.contains(Material.FLINT_AND_STEEL)) {
                 val flintAndSteel = player.inventory.getItem(2) ?: return
@@ -262,22 +265,27 @@ class GameListener : Listener {
                     item.remove()
                     player.inventory.setItem(2, itemStack)
 
-                    gamePlayer.coins += 1
-                    player.sendMessage("§e+1CC §8[Nalezení zapalovače]")
+                    //gamePlayer.coins += 1
+                    //player.sendMessage("§e+1CC §8[Nalezení zapalovače]")
                     return
                 }
-            }
-            else event.isCancelled = true
+            } else event.isCancelled = true
         } else event.isCancelled = true
     }
 
     @EventHandler
     fun onDamage(event: EntityDamageEvent) {
         if (event.entity !is Player) return
-        if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) event.isCancelled = true
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) {
+            event.isCancelled = true
+            event.damage = .0
+        }
         if (event.cause == EntityDamageEvent.DamageCause.FALL
                 || event.cause == EntityDamageEvent.DamageCause.STARVATION
-                || event.cause == EntityDamageEvent.DamageCause.VOID) event.isCancelled = true
+                || event.cause == EntityDamageEvent.DamageCause.VOID) {
+            event.damage = .0
+            event.isCancelled = true
+        }
     }
 
     @EventHandler
@@ -286,7 +294,8 @@ class GameListener : Listener {
         if (event.damager !is Player) return
 
         val entityGamePlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(event.entity as Player) ?: return
-        val damagerGamePlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(event.damager as Player) ?: return
+        val damagerGamePlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(event.damager as Player)
+                ?: return
 
         if (entityGamePlayer is Killer) {
             event.isCancelled = true
@@ -312,10 +321,10 @@ class GameListener : Listener {
 
             if (down) {
                 killer.coins += 3
-                killer.player.sendMessage("§e+3CC §8[Smrtelné zranění survivora]")
+                killer.player.sendMessage("§e+3 CC §8[Smrtelné zranění survivora]")
             } else {
-                killer.coins += 1
-                killer.player.sendMessage("§e+1CC §8[Zranení survivora]")
+                killer.coins += 3
+                killer.player.sendMessage("§e+3 CC §8[Zranení survivora]")
             }
 
             killer.player.inventory.setItem(0, null)
@@ -372,8 +381,9 @@ class GameListener : Listener {
     fun onGeneratorPowerUp(ignored: GeneratorPowerUpEvent) {
         try {
             DeadByDaylight.instance.let { GameManager.runningGeneratorTask.runTaskTimer(it, 0L, 40L) }
-        } catch (ignored: IllegalStateException) {}
-        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 1) {
+        } catch (ignored: IllegalStateException) {
+        }
+        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 5) {
 
             // TODO: Change messages
 
@@ -381,6 +391,8 @@ class GameListener : Listener {
             TextComponentBuilder("§7Potřebný počet generátorů bylo opraveno,", true).broadcast()
             TextComponentBuilder("§ebrány se otevřou za 30 vteřin!", true).broadcast()
             TextComponentBuilder("").broadcast()
+
+            PlayerManager.survivorTeam.entries.forEach { it.getSurvivor()?.removePotionEffects() }
 
             Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
                 DeadByDaylight.gameManager.gates.forEach { it1 -> it1.open() }
@@ -416,6 +428,8 @@ class GameListener : Listener {
         } else {
             val itemMeta = player.inventory.getItem(event.newSlot)?.itemMeta ?: return
             if (itemMeta.displayName == "§9Zapalovač §7(podrž pro použití)") {
+                if (DeadByDaylight.gameManager.areGatesOpened()) return
+                if (player.hasPotionEffect(PotionEffectType.SPEED)) return
                 gamePlayer.holdingFlash()
             }
         }

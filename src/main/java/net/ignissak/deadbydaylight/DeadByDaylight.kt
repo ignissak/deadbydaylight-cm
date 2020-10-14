@@ -1,5 +1,6 @@
 package net.ignissak.deadbydaylight
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.protection.regions.RegionContainer
 import cz.craftmania.craftlibs.CraftLibs
@@ -10,11 +11,13 @@ import net.ignissak.deadbydaylight.event.*
 import net.ignissak.deadbydaylight.game.BoardManager
 import net.ignissak.deadbydaylight.game.GameManager
 import net.ignissak.deadbydaylight.game.PlayerManager
+import net.ignissak.deadbydaylight.game.interfaces.GameRegion
 import net.ignissak.deadbydaylight.game.task.BoardUpdateTask
 import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.Log
 import net.ignissak.deadbydaylight.utils.getSurvivor
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
 import java.lang.Exception
 
@@ -63,6 +66,14 @@ class DeadByDaylight : JavaPlugin() {
         Log.info("Unregistering & destroying NPCs...")
         CitizensAPI.getNPCRegistry().forEach { it.destroy() }
         CitizensAPI.getNPCRegistry().deregisterAll()
+
+        gameManager.survivorLocations.forEach {
+            it.chunk.load()
+        }
+
+        gameManager.killerLocations.forEach {
+            it.chunk.load()
+        }
     }
 
     override fun onDisable() {

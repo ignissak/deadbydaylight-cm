@@ -211,6 +211,8 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.player.gameMode = GameMode.SPECTATOR
         this.player.inventory.clear()
 
+        this.removePotionEffects()
+
         this.npc.destroy()
         CitizensAPI.getNPCRegistry().deregister(this.npc)
 
@@ -227,18 +229,22 @@ class Survivor(player: Player) : GamePlayer(player) {
             return
         }
 
+        val survivor = DeadByDaylight.playerManager.getSurvivorsDying().first() ?: return
+
         val compassItem = ItemBuilder(Material.COMPASS, 1)
-                .setName("§9Kompas")
+                .setName("§9Kompas §7(${survivor.player.name})")
                 .setLore("", "§7Tento kompas tě zavede", "§7za přeživším, který umíra.", "")
                 .hideAllFlags()
                 .build()
 
         val compassMeta = compassItem.itemMeta!! as CompassMeta
 
-        compassMeta.lodestone = DeadByDaylight.playerManager.getSurvivorsDying().first()?.previousLocation
+        compassMeta.lodestone = survivor.previousLocation
+        compassMeta.isLodestoneTracked = true
         compassItem.itemMeta = compassMeta
 
         player.inventory.setItem(8, compassItem)
+        player.compassTarget = survivor.previousLocation!!
     }
 
     fun showHealthTitle() {
@@ -269,7 +275,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         }, 80)
     }
 
-    fun removePotionEffects() {
+    private fun removePotionEffects() {
         player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
     }
 

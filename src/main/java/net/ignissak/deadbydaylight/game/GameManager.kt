@@ -37,7 +37,6 @@ class GameManager {
     var countdown: Int = 30
 
     var generators: MutableList<Generator> = mutableListOf()
-    // TODO: Place another chests
     var lootChests: MutableList<LootChest> = mutableListOf()
     var drops: MutableList<Location> = mutableListOf()
 
@@ -145,7 +144,7 @@ class GameManager {
         // TEST: Start game
 
         startedAt = System.currentTimeMillis()
-        endsAt = System.currentTimeMillis() + (15 * 60 * 1000)
+        endsAt = System.currentTimeMillis() + (15 * 60 * 1000) + (15 * 1000)
         startingPlayers = PlayerManager.players.size
         gameState = GameState.INGAME
         isDisabledMoving = true
@@ -154,11 +153,7 @@ class GameManager {
         // Increase statistics
         PlayerManager.players.values.forEach{ it.gameStats.games_played += 1 }
 
-        countdown = 15
-
         this.createTeams()
-
-        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 0, 20)
 
         // Killer teleporting
         PlayerManager.killerTeam.entries.forEach {
@@ -255,6 +250,8 @@ class GameManager {
         TextComponentBuilder("&7někde na zemi pohozené.", true).send(PlayerManager.survivorTeam)
         TextComponentBuilder("").send(PlayerManager.survivorTeam)
 
+        this.countdown = 15
+
         val run: BukkitRunnable = object : BukkitRunnable() {
             override fun run() {
                 if (countdown == 0) {
@@ -291,6 +288,7 @@ class GameManager {
                 countdown--
             }
         }
+        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 0, 20)
         DeadByDaylight.instance.let { run.runTaskTimer(it, 0L, 20L) }
     }
 

@@ -275,7 +275,9 @@ class GameListener : Listener {
     fun onDamage(event: EntityDamageEvent) {
         if (event.entity !is Player) return
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) event.isCancelled = true
-        if (event.cause == EntityDamageEvent.DamageCause.FALL || event.cause == EntityDamageEvent.DamageCause.STARVATION) event.isCancelled = true
+        if (event.cause == EntityDamageEvent.DamageCause.FALL
+                || event.cause == EntityDamageEvent.DamageCause.STARVATION
+                || event.cause == EntityDamageEvent.DamageCause.VOID) event.isCancelled = true
     }
 
     @EventHandler

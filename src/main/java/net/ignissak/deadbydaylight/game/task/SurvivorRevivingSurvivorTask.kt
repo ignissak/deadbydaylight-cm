@@ -23,7 +23,7 @@ class SurvivorRevivingSurvivorTask(private val survivorReviving: Survivor, val s
         }
 
         if (remainingHalfSeconds == 1) {
-            Title("§a§lOŽIVEN", "§a\u25A0".repeat(7), 5, 20, 5).send(survivorReviving.player)
+            Title("§a§lOŽIVEN", "§a\u25A0".repeat(8), 0, 20, 5).send(survivorReviving.player)
             survivorReviving.player.playSound(survivorReviving.player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.AMBIENT, .5F, 1F)
             survivorToBeRevived.revive(survivorReviving)
 

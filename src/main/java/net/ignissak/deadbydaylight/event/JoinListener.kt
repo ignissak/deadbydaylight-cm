@@ -36,6 +36,7 @@ class JoinListener : Listener {
 
         event.joinMessage = "${DeadByDaylight.prefix}${player.name} se §apřipojil §7(${Bukkit.getOnlinePlayers().size}/5)"
         player.inventory.setItem(0, ItemManager.role)
+        player.inventory.setItem(8, ItemManager.stats)
 
         DeadByDaylight.boardManager.updateAllPlayers()
 

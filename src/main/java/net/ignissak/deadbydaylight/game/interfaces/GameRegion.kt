@@ -12,7 +12,7 @@ import org.bukkit.Location
 enum class GameRegion(val regionNames: Array<String>, val title: String) {
 
     BAMBOO_FARM(arrayOf("bamboo"), "Bambusová farma"),
-    DEEP_SPRUCE_FOREST(arrayOf("deepspruceforest"), "Hustý smrekový les"),
+    DEEP_SPRUCE_FOREST(arrayOf("deepspruceforest"), "Hustý smrkový les"),
     ESCAPE_1(arrayOf("door1"), "Východ"),
     ESCAPE_2(arrayOf("door2"), "Východ"),
     IRON_BARS_1(arrayOf("ironbars1"), "Východ"),

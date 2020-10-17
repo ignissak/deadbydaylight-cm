@@ -16,6 +16,8 @@ import net.ignissak.deadbydaylight.utils.*
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import java.lang.IllegalStateException
@@ -41,12 +43,18 @@ class GameManager {
     var survivorLocations: MutableList<Location> = mutableListOf()
     var killerLocations: MutableList<Location> = mutableListOf()
     var dumpLocation: Location? = LocationUtils.parseLocation(DeadByDaylight.instance.config.getString("locations.dumb"))
+    var fireworkLocations: MutableList<Location> = mutableListOf()
 
     val revivingTasks: MutableList<SurvivorRevivingSurvivorTask> = mutableListOf()
     val gates: MutableList<Gate> = mutableListOf()
 
     var locationTask: LocationTask = LocationTask()
     var checkTask: FrequentTryEndTask = FrequentTryEndTask()
+    var booTask = BooTask()
+
+    // Default: 5
+    // If only 3 survivors: 4
+    var neededGenerators = 5
 
     // Loading locations for loot chests, generators and drops
     init {
@@ -87,6 +95,11 @@ class GameManager {
         gates.add(Gate(GameRegion.IRON_BARS_2, Material.IRON_BARS))
         Log.info("Registered ${gates.size} gates.")
 
+        DeadByDaylight.instance.config.getStringList("locations.fireworks").forEach {
+            LocationUtils.parseLocation(it, false)?.let { it1 -> fireworkLocations.add(it1) }
+        }
+        Log.info("Registered ${fireworkLocations.size} firework locations.")
+
     }
 
     private fun canStart(): Boolean = PlayerManager.players.size >= this.minSurvivors
@@ -103,6 +116,8 @@ class GameManager {
 
         DeadByDaylight.boardUpdateTask = BoardUpdateTask()
         DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 0L, 20L)
+
+        countdown = 30
 
         val run: BukkitRunnable = object : BukkitRunnable() {
             override fun run() {
@@ -182,6 +197,7 @@ class GameManager {
             it.getPlayer()?.foodLevel = 0
             it.getPlayer()?.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 2.0
             it.getPlayer()?.health = 2.0
+            it.getPlayer()?.setPlayerListName("§c§k${it.getPlayer()?.name}")
 
             it.getKiller()?.disguise()
         }
@@ -193,7 +209,7 @@ class GameManager {
 
         // Adding loot to loot chests
         if (lootChests.size > 0) {
-            lootChests.forEach { it.loot.add(ItemManager.fuel) }
+            lootChests.forEach { it.loot.add(ItemManager.battery) }
             lootChests.shuffled().take(14).forEach { it.loot.add(ItemManager.bandage) }
             lootChests.shuffled().take(9).forEach { it.loot.add(ItemManager.flash) }
 
@@ -215,7 +231,7 @@ class GameManager {
                         dropItem?.isCustomNameVisible = true
                     }
                     else -> {
-                        val dropItem = it.world?.dropItem(it, ItemManager.fuel)
+                        val dropItem = it.world?.dropItem(it, ItemManager.battery)
                         dropItem?.customName = "§eBaterie"
                         dropItem?.isCustomNameVisible = true
                     }
@@ -262,6 +278,11 @@ class GameManager {
                     Utils.sendSoundGlobally(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1F, 1F)
                     Utils.broadcast(true, "Hra začíná!")
 
+                    if (startingPlayers - 1 == 3) {
+                        neededGenerators = 4
+                        Utils.broadcast(true, "Počet potřebných generátorů je znížen na 4, protože hrají jenom 3 survivoři.")
+                    }
+
                     PlayerManager.survivorTeam.entries.forEach {
                         it.getGamePlayer()?.giveStartingPotionEffects()
                     }
@@ -290,6 +311,8 @@ class GameManager {
         DeadByDaylight.boardUpdateTask = BoardUpdateTask()
         DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 20, 20)
         DeadByDaylight.instance.let { run.runTaskTimer(it, 0L, 20L) }
+
+        booTask.runTaskTimer(DeadByDaylight.instance, 100L, 200L)
     }
 
     // TEST
@@ -366,13 +389,15 @@ class GameManager {
         try {
             runningGeneratorTask.cancel()
 
-        } catch (ignored: IllegalStateException) {
-        }
+        } catch (ignored: IllegalStateException) { }
 
         try {
             checkTask.cancel()
-        } catch (ignored: IllegalStateException) {
-        }
+        } catch (ignored: IllegalStateException) { }
+
+        try {
+            booTask.cancel()
+        } catch (ignored: IllegalStateException) { }
 
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
         DeadByDaylight.boardManager.updateAllPlayers()
@@ -390,6 +415,7 @@ class GameManager {
                     it.player.sendMessage("§e+15 CC §8[Výhra]")
                     it.coins += 15
                 }
+                it.player.setPlayerListName(null)
             } else if (it is Survivor) {
                 if (it.survivalState == SurvivalState.PLAYING) {
                     it.gameStats.playtime += System.currentTimeMillis() - startedAt
@@ -398,6 +424,8 @@ class GameManager {
             it.giveCoins()
 
             it.player.gameMode = GameMode.SPECTATOR
+
+            it.updateStats()
         }
 
         TextComponentBuilder("").broadcast()
@@ -412,6 +440,23 @@ class GameManager {
         TextComponentBuilder("").broadcast()
 
         Utils.broadcast(true, "Za 15 sekund se restartuje server.")
+
+        var i = 10
+
+        object: BukkitRunnable() {
+            override fun run() {
+                if (i == 0) {
+                    this.cancel()
+                    return
+                }
+
+                this@GameManager.fireworkLocations.forEach {
+                    this@GameManager.spawnRandomFirework(it)
+                }
+                i--
+            }
+
+        }.runTaskTimer(DeadByDaylight.instance, 0, 20)
 
         DeadByDaylight.instance.let { Bukkit.getScheduler().runTaskLater(it, this::shutDown, 15 * 20) }
     }
@@ -486,6 +531,25 @@ class GameManager {
     }
 
     fun areGatesOpened(): Boolean = gates.all { it.isOpened }
+
+    private fun spawnRandomFirework(loc: Location) {
+        val colors: Array<Color> = arrayOf(Color.AQUA, Color.BLUE, Color.FUCHSIA, Color.GRAY, Color.GREEN, Color.LIME, Color.MAROON, Color.NAVY, Color.OLIVE, Color.ORANGE, Color.PURPLE, Color.RED, Color.SILVER, Color.TEAL, Color.WHITE, Color.YELLOW)
+        val firework = loc.world!!.spawnEntity(loc, EntityType.FIREWORK) as Firework
+        val fireworkMeta = firework.fireworkMeta
+        val random = Random()
+
+        val effect = FireworkEffect.builder()
+                .flicker(random.nextBoolean())
+                .withColor(colors.random())
+                .withFade(colors.random())
+                .with(FireworkEffect.Type.values().random())
+                .trail(true).build()
+
+        fireworkMeta.addEffect(effect)
+        fireworkMeta.power = random.nextInt(2) + 1
+
+        firework.fireworkMeta = fireworkMeta
+    }
 
     companion object {
         val runningGeneratorTask: RunningGeneratorTask = RunningGeneratorTask()

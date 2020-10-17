@@ -60,8 +60,10 @@ class DeadByDaylight : JavaPlugin() {
         getCommand("adddrop")?.setExecutor(adminCommands)
         getCommand("addgenerator")?.setExecutor(adminCommands)
         getCommand("addlootchest")?.setExecutor(adminCommands)
+        getCommand("addfireworkspawn")?.setExecutor(adminCommands)
 
         getCommand("role")?.setExecutor(PlayerCommands())
+        getCommand("stats")?.setExecutor(PlayerCommands())
 
         Log.info("Unregistering & destroying NPCs...")
         CitizensAPI.getNPCRegistry().forEach { it.destroy() }

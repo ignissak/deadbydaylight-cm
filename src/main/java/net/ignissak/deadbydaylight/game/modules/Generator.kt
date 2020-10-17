@@ -7,6 +7,7 @@ import net.ignissak.deadbydaylight.api.event.GeneratorPowerUpEvent
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.interfaces.GameRegion
 import net.ignissak.deadbydaylight.utils.TextComponentBuilder
+import net.ignissak.deadbydaylight.utils.Utils
 import net.ignissak.deadbydaylight.utils.getGamePlayer
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -58,7 +59,7 @@ class Generator(val location: Location) {
     private fun powerUp() {
         // TODO
 
-        location.world?.strikeLightningEffect(location)
+        Utils.getCenter(location)?.let { location.world?.strikeLightningEffect(it) }
 
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&a&lGenerátor opraven!", true).broadcast()

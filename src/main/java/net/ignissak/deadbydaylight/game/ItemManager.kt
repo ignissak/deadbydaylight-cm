@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack
 
 object ItemManager {
 
-    val fuel: ItemStack
+    val battery: ItemStack
         get() = Utils.createHead("fuel", "8847dbf6-6648-47f2-bb4f-667903125a9e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQyYzE5YjQ0MjU0MTM1MWE2YjgxZWViNmNiZWY0MTk2NmZmYjdkYmU0YzEzNmI4N2Y1YmFmOWQxNGEifX19",
                 "§eBaterie §7(klikni pravym)", "", "§7Kliknutím pravym s baterii", "§7na generátor pro vložení.", "")!!
 
@@ -54,4 +54,10 @@ object ItemManager {
                 .hideAllFlags()
                 .build()
 
+    val stats: ItemStack
+        get() = ItemBuilder(Material.BOOK, 1)
+                .setName("§9Statistiky §7(klikni pravym)")
+                .setLore("", "§7Klikni s itemem pro zobrazení", "§7menu s tvými statistikami.", "")
+                .hideAllFlags()
+                .build()
 }

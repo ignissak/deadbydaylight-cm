@@ -1,6 +1,9 @@
 package net.ignissak.deadbydaylight.game.task
 
 import cz.craftmania.craftcore.spigot.messages.chat.ChatInfo
+import net.ignissak.deadbydaylight.DeadByDaylight
+import net.ignissak.deadbydaylight.game.interfaces.GameState
+import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Survivor
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -12,6 +15,16 @@ import org.bukkit.scheduler.BukkitRunnable
 class SurvivorFlashTask(private val survivor: Survivor): BukkitRunnable() {
 
     override fun run() {
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME) {
+            this.cancel()
+            return
+        }
+
+        if (this.survivor.survivalState != SurvivalState.PLAYING) {
+            this.cancel()
+            return
+        }
+
         if (!this.survivor.player.inventory.contains(Material.FLINT_AND_STEEL) || this.survivor.player.inventory.itemInMainHand.type != Material.FLINT_AND_STEEL) {
             this.survivor.giveBlindness()
 

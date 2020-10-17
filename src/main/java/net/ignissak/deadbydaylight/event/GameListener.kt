@@ -48,6 +48,7 @@ class GameListener : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     fun onClick(event: PlayerInteractEvent) {
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME) {
+            if (event.item?.type == Material.WRITTEN_BOOK) return
             if (event.player.isOp && event.player.gameMode == GameMode.CREATIVE) return
             event.isCancelled = true
             return
@@ -383,7 +384,7 @@ class GameListener : Listener {
             DeadByDaylight.instance.let { GameManager.runningGeneratorTask.runTaskTimer(it, 0L, 40L) }
         } catch (ignored: IllegalStateException) {
         }
-        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == 5) {
+        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == DeadByDaylight.gameManager.neededGenerators) {
 
             // TODO: Change messages
 
@@ -414,8 +415,10 @@ class GameListener : Listener {
         val gamePlayer = player.getGamePlayer() ?: return
 
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) return
+        if (DeadByDaylight.gameManager.gates.all { it.isOpened }) return
 
         if (gamePlayer !is Survivor) return
+        if (gamePlayer.survivalState != SurvivalState.PLAYING) return
         val newItem = player.inventory.getItem(event.newSlot)
         if (newItem == null) {
             try {

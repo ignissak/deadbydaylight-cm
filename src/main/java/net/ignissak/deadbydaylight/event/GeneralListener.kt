@@ -64,8 +64,8 @@ class GeneralListener : Listener {
             event.isCancelled = true
             ChatInfo.error(event.player, "Survivoři ti nerozumí.")
         } else if (craftPlayer is Survivor) {
-            PlayerManager.survivorTeam.entries.forEach { it.getPlayer()?.sendMessage(String.format((if (craftPlayer.survivalState == SurvivalState.SPECTATING) "§7[Mrtvý] " else "") + "§c${event.player.name}§8: §7%2\$s", event.player, event.message)) }
-            DeadByDaylight.instance.logger.info(String.format((if (craftPlayer.survivalState == SurvivalState.SPECTATING) "§7[Mrtvý] " else "") + "§c${event.player.name}§8: §7%2\$s", event.player, event.message))
+            PlayerManager.survivorTeam.entries.forEach { it.getPlayer()?.sendMessage(String.format((if (craftPlayer.survivalState == SurvivalState.SPECTATING) "§8[Mrtvý] " else "") + "§c${event.player.name}§8: §7%2\$s", event.player, event.message)) }
+            DeadByDaylight.instance.logger.info(String.format((if (craftPlayer.survivalState == SurvivalState.SPECTATING) "§8[Mrtvý] " else "") + "§c${event.player.name}§8: §7%2\$s", event.player, event.message))
 
             event.isCancelled = true
         }
@@ -109,6 +109,10 @@ class GeneralListener : Listener {
 
         if (item.isSimilar(ItemManager.role)) {
             event.player.performCommand("role")
+
+            event.isCancelled = true
+        } else if (item.isSimilar(ItemManager.stats)) {
+            event.player.performCommand("stats")
 
             event.isCancelled = true
         }

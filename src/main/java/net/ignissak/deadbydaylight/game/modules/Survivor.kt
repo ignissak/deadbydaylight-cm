@@ -163,7 +163,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         killer.playerKills += 1
         this.survivalState = SurvivalState.SPECTATING
 
-        TextComponentBuilder(DeadByDaylight.prefix + "${player.name} zemřel.")
+        TextComponentBuilder(DeadByDaylight.prefix + "${player.name} zemřel.").broadcast()
         Title("§c§lGAME OVER", "Tady pro tebe hra končí.", 10, 60, 10).send(player)
 
         PlayerManager.killerTeam.entries.forEach {
@@ -182,6 +182,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.giveCoins()
         this.updateStats()
         this.removePotionEffects()
+        this.showToOthers()
 
         val ending = DeadByDaylight.gameManager.tryEnd()
 
@@ -229,6 +230,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     private fun compassLeadingToDyingSurvivor() {
+        if (survivalState != SurvivalState.PLAYING) return
         if (!DeadByDaylight.playerManager.isAnySurvivorDying() || DeadByDaylight.gameManager.gameState != GameState.INGAME) {
             // No survivor is dying, remove compass
             player.inventory.remove(Material.COMPASS)
@@ -243,12 +245,12 @@ class Survivor(player: Player) : GamePlayer(player) {
                 .hideAllFlags()
                 .build()
 
-        val compassMeta = compassItem.itemMeta!! as CompassMeta
+        /*val compassMeta = compassItem.itemMeta!! as CompassMeta
 
         compassMeta.lodestone = survivor.previousLocation
         compassMeta.isLodestoneTracked = true
-        compassMeta.enchants.forEach { compassMeta.removeEnchant(it.key) }
-        compassItem.itemMeta = compassMeta
+
+        compassItem.itemMeta = compassMeta*/
 
         player.compassTarget = survivor.previousLocation!!
         player.inventory.setItem(8, compassItem)
@@ -271,6 +273,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     fun giveBlindness() {
         if (DeadByDaylight.gameManager.areGatesOpened()) return
         if (survivalState != SurvivalState.PLAYING) return
+        if (player.hasPotionEffect(PotionEffectType.SPEED)) return
         player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))
     }
 
@@ -280,7 +283,7 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
             this.giveBlindness()
-        }, 80)
+        }, 81)
     }
 
     fun light() {
@@ -288,6 +291,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun holdingFlash() {
+        if (DeadByDaylight.gameManager.gates.all { it.isOpened }) return
         this.survivorFlashTask = SurvivorFlashTask(this)
         this.survivorFlashTask.runTaskTimer(DeadByDaylight.instance, 0, 6)
     }

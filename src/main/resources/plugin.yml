@@ -8,9 +8,11 @@ depend: ["CraftCore", "CraftLibs", "CraftEconomy", "WorldGuard", "XoreBoardUtil"
 commands:
   forcestart: {}
   role: {}
+  stats: {}
   setlobby: {}
   addkillerspawn: {}
   addsurvivorspawn: {}
   adddrop: {}
   addgenerator: {}
   addlootchest: {}
+  addfireworkspawn: {}

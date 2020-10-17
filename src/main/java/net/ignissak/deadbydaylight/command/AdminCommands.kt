@@ -69,6 +69,11 @@ class AdminCommands : CommandExecutor {
                 DeadByDaylight.instance.config.set("locations.chests", DeadByDaylight.gameManager.lootChests.stream().map { LocationUtils.formatLocation(it.location, false) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána lokace loot chestky.")
             }
+            "addfireworkspawn" -> {
+                DeadByDaylight.gameManager.fireworkLocations.add(sender.location)
+                DeadByDaylight.instance.config.set("locations.fireworks", DeadByDaylight.gameManager.survivorLocations.stream().map { LocationUtils.formatLocation(it) }.collect(Collectors.toList()))
+                ChatInfo.success(sender, "Byla přidána spawn lokace pro firework.")
+            }
         }
         return true
     }

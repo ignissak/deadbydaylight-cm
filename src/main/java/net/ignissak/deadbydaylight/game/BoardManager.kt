@@ -6,11 +6,9 @@ import net.ignissak.deadbydaylight.game.interfaces.GameState
 import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
-import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.getSurvivor
 import net.minecord.xoreboardutil.bukkit.XoreBoard
 import net.minecord.xoreboardutil.bukkit.XoreBoardUtil
-import org.bukkit.ChatColor
 
 class BoardManager {
 
@@ -19,7 +17,7 @@ class BoardManager {
 
         val privateSidebar = xoreBoard.getPrivateSidebar(gamePlayer.player)
 
-        privateSidebar.displayName = ChatColor.translateAlternateColorCodes('&', "${Constants.halloweenColor}&lHALLOWEEN")
+        privateSidebar.displayName = "§6§lHALLOWEEN"
         privateSidebar.clearLines()
         privateSidebar.lines = getLines(gamePlayer)
 
@@ -99,9 +97,9 @@ class BoardManager {
     // "\u25A0"
     private fun getActivatedGenerators(): String {
         val stringBuilder = StringBuilder()
-        var i = 1
+        var i = 0
         DeadByDaylight.gameManager.generators.sortedBy { !it.isActivated() }.forEach{ generator ->
-            if (i == 6) {
+            if (i == DeadByDaylight.gameManager.neededGenerators) {
                 stringBuilder.append("§7|")
             }
             if (generator.isActivated()) stringBuilder.append("§a\u25A0")

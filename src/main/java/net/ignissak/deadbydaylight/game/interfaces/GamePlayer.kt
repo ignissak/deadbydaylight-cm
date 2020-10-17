@@ -10,12 +10,16 @@ import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.modules.GameStats
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
+import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.Log
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
+import org.bukkit.potion.PotionEffectType
+import xyz.upperlevel.spigot.book.BookUtil
 
 abstract class GamePlayer(val player: Player) {
 
@@ -51,9 +55,60 @@ abstract class GamePlayer(val player: Player) {
         player.playSound(player.location, Sound.AMBIENT_CAVE, 1F, 1F)
         player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
         DeadByDaylight.gameManager.lobbyLocation?.let { player.teleport(it) }
+
         this.showToOthers()
+        this.giveBook()
 
         DeadByDaylight.gameManager.tryStart()
+    }
+
+    private fun giveBook() {
+        val book = BookUtil.writtenBook()
+                .author("CraftMania")
+                .title("§9Manuál §7(klikni pravým)")
+                .pages(
+                        // First page
+                        BookUtil.PageBuilder()
+                                .add(
+                                        BookUtil.TextBuilder.of("Základní informace")
+                                                .color(ChatColor.GOLD)
+                                                .build()
+                                )
+                                .newLine()
+                                .newLine()
+                                .add("Tato hra je 1 versus 4, kde se killer snaží zabít survivory a survivoři se snaží utéct z mapy. Pro více informací k rolím přejdi na další stránky.")
+                                .build(),
+                        // Second page
+                        BookUtil.PageBuilder()
+                                .add(
+                                        BookUtil.TextBuilder.of("Hraní za killera")
+                                                .color(ChatColor.RED)
+                                                .build()
+                                )
+                                .newLine()
+                                .newLine()
+                                .add("Jako killer musíš zabít všechny survivory. Survivoři mají maximálně 2 životy, které si mohou doplnit bándáží. Tvoje sekyra dává 2 damage (1 srdíčko). Hráč neumře ihned, ale leží na zemi po dobu 20 sekund, během kterých ho můžou ostatní oživit.")
+                                .build(),
+                        BookUtil.PageBuilder()
+                                .add("Také můžeš přitáhnout survivory k sobě pomocí hooku. Obě dvě tvoje zbraně mají po použití cooldown a po zasažení survivora sekyrou mají speed boost.")
+                                .build(),
+                        // Third page
+                        BookUtil.PageBuilder()
+                                .add(
+                                        BookUtil.TextBuilder.of("Hraní za survivora")
+                                                .color(ChatColor.DARK_GREEN)
+                                                .build()
+                                )
+                                .newLine()
+                                .newLine()
+                                .add("Jako survivor musíš spolu s ostatními opravit aspoň 5 generátorů a utéct skrz jednu ze 2 brán na mapě. Baterie do generátorů jsou schované v truhlách nebo se spawnují po zemi.")
+                                .build(),
+                        BookUtil.PageBuilder()
+                                .add("V těchto truhlách můžeš získat bandáž na vyléčení a zapalovač, abys mohl lépe vidět, protože budeš mít blindness. Pokud nějaký spoluhráč bude zraněn, tak dostaneš kompas, který tě k němu bude navigovat a můžeš ho shiftováním oživit.")
+                                .build(),
+                )
+                .build()
+        player.inventory.setItem(1, book)
     }
 
     fun onQuit() {
@@ -69,7 +124,8 @@ abstract class GamePlayer(val player: Player) {
     }
 
     fun updateStats() {
-        CraftLibs.getSqlManager().query("UPDATE dbd_players SET stats = ? WHERE uuid = ?;", gson.toJson(gameStats), player.uniqueId.toString()).thenAcceptAsync { Log.info("Updated statistics for ${player.name}.") }
+        println(gameStats)
+        CraftLibs.getSqlManager().query("UPDATE dbd_players SET stats = ? WHERE uuid = ?;", gson.toJson(gameStats), player.uniqueId.toString()).whenComplete { _, _ -> Log.info("Updated statistics for ${player.name}.") }
     }
 
     abstract fun giveStartingItems()
@@ -101,7 +157,7 @@ abstract class GamePlayer(val player: Player) {
     }
 
     fun removePotionEffects() {
-        player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
+        player.removePotionEffect(PotionEffectType.BLINDNESS)
     }
 
     override fun toString(): String {

@@ -5,6 +5,7 @@ import cz.craftmania.craftcore.spigot.messages.chat.ChatInfo
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.interfaces.GameState
 import net.ignissak.deadbydaylight.game.menu.RolePreferenceMenu
+import net.ignissak.deadbydaylight.game.menu.StatsMenu
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -24,6 +25,14 @@ class PlayerCommands : CommandExecutor {
                     return true
                 }
                 SmartInventory.builder().provider(RolePreferenceMenu()).title("Preference").type(InventoryType.HOPPER).build().open(sender)
+                return true
+            }
+            "stats" -> {
+                if (DeadByDaylight.gameManager.gameState == GameState.INGAME || DeadByDaylight.gameManager.gameState == GameState.ENDING) {
+                    ChatInfo.error(sender, "Statistiky můžeš přehlížet jenom v Lobby.")
+                    return true
+                }
+                SmartInventory.builder().provider(StatsMenu()).title("Statistiky").type(InventoryType.HOPPER).build().open(sender)
                 return true
             }
         }

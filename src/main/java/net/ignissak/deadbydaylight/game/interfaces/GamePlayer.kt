@@ -10,7 +10,6 @@ import net.ignissak.deadbydaylight.game.PlayerManager
 import net.ignissak.deadbydaylight.game.modules.GameStats
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
-import net.ignissak.deadbydaylight.utils.Constants
 import net.ignissak.deadbydaylight.utils.Log
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -38,6 +37,8 @@ abstract class GamePlayer(val player: Player) {
             } else {
                 Log.info("Loading data for ${player.name}")
                 gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
+
+                println(gameStats)
             }
         }
 
@@ -112,7 +113,6 @@ abstract class GamePlayer(val player: Player) {
     }
 
     fun onQuit() {
-
         if (this is Survivor) {
             this.npc.destroy()
             CitizensAPI.getNPCRegistry().deregister(this.npc)
@@ -133,8 +133,10 @@ abstract class GamePlayer(val player: Player) {
 
     @Deprecated("Directly check instance with 'is' keyword.", ReplaceWith("this is Survivor", "net.ignissak.deadbydaylight.game.modules.Survivor"), DeprecationLevel.ERROR)
     fun isSurvivor(): Boolean = this is Survivor
+
     @Deprecated("Directly check instance with 'is' keyword.", ReplaceWith("this is Killer", "net.ignissak.deadbydaylight.game.modules.Killer"), DeprecationLevel.ERROR)
     fun isKiller(): Boolean = this is Killer
+
     fun isAssignedToTeam(): Boolean = PlayerManager.killerTeam.entries.contains(player.name) || PlayerManager.survivorTeam.entries.contains(player.name)
 
     fun hideFromOthers() {
@@ -152,11 +154,11 @@ abstract class GamePlayer(val player: Player) {
         }
     }
 
-    fun unDisguise() {
+    private fun unDisguise() {
         DisguiseAPI.undisguiseToAll(this.player)
     }
 
-    fun removePotionEffects() {
+    fun removeBlindness() {
         player.removePotionEffect(PotionEffectType.BLINDNESS)
     }
 

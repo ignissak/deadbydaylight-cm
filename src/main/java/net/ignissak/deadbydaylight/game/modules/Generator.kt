@@ -32,12 +32,12 @@ class Generator(val location: Location) {
             this.progress += value
 
             this.contributors.add(gamePlayer.player.name)
-            gamePlayer.coins += 1
+            gamePlayer.coins += 2
             gamePlayer.gameStats.survivor_fuels_filled += 1
             gamePlayer.player.inventory.setItem(0, null)
             location.world?.playSound(location, Sound.ENTITY_CHICKEN_EGG, .5F, .0F)
 
-            gamePlayer.player.sendMessage("§e+1 CC §8[Doplnění paliva do generátoru]")
+            gamePlayer.player.sendMessage("§e+2 CC §8[Doplnění paliva do generátoru]")
             this.updateHologram()
 
             if (this.progress == 4)

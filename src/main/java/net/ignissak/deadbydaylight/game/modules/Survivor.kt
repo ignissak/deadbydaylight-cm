@@ -19,7 +19,6 @@ import net.ignissak.deadbydaylight.utils.*
 import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.inventory.meta.CompassMeta
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
@@ -88,7 +87,6 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     private fun down(killer: Killer) {
-        // TODO: Compass for other players
         killer.gameStats.killer_downs += 1
         killer.playerDowns += 1
 
@@ -181,12 +179,14 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         this.giveCoins()
         this.updateStats()
-        this.removePotionEffects()
+        this.removeBlindness()
         this.showToOthers()
 
         val ending = DeadByDaylight.gameManager.tryEnd()
 
         if (!ending) {
+            player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, SoundCategory.AMBIENT, .5F, 0F)
+
             player.inventory.contents.forEach {
                 if (it != null) {
                     if (it.type == Material.AIR) return@forEach
@@ -218,7 +218,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.player.gameMode = GameMode.SPECTATOR
         this.player.inventory.clear()
 
-        this.removePotionEffects()
+        this.removeBlindness()
 
         this.npc.destroy()
         CitizensAPI.getNPCRegistry().deregister(this.npc)

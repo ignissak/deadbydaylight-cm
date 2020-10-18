@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scheduler.BukkitTask
 import org.bukkit.util.Vector
+import java.lang.Exception
 
 class LootChest(val location: Location) {
 
@@ -39,7 +40,7 @@ class LootChest(val location: Location) {
             dropItem?.isCustomNameVisible = true
         }
 
-        println("Opening chest at ${pos}. Will recover in 5 minutes.")
+        println("Opening chest at $pos. Will recover in 5 minutes.")
 
         val packet = PacketPlayOutBlockAction(pos, Blocks.CHEST, 1, 1)
         Bukkit.getOnlinePlayers().forEach { (it as CraftPlayer).handle.playerConnection.sendPacket(packet) }
@@ -48,6 +49,9 @@ class LootChest(val location: Location) {
             override fun run() {
                 this@LootChest.close()
                 this@LootChest.loot.add(ItemManager.battery)
+                this@LootChest.location.world?.playSound(location, Sound.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, .5F, 1F)
+
+                println("Recovered chest at $pos.")
             }
         }.runTaskLater(DeadByDaylight.instance, 5 * 60 * 20)
     }
@@ -59,8 +63,10 @@ class LootChest(val location: Location) {
         val packet = PacketPlayOutBlockAction(pos, Blocks.CHEST, 1, 0)
         Bukkit.getOnlinePlayers().forEach { (it as CraftPlayer).handle.playerConnection.sendPacket(packet) }
 
-        if (!bukkitTask?.isCancelled!!) {
+        try {
             bukkitTask?.cancel()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

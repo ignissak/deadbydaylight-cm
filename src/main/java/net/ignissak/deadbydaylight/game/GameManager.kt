@@ -169,6 +169,9 @@ class GameManager {
 
         this.createTeams()
 
+        PlayerManager.survivorTeam.entries.filter { it.getGamePlayer() is Survivor }.forEach { println("Survivor: $it") }
+        PlayerManager.killerTeam.entries.forEach { println(it) }
+
         // Killer teleporting
         PlayerManager.killerTeam.entries.forEach {
             it.getPlayer()?.teleport(killerLocations.random())
@@ -375,7 +378,10 @@ class GameManager {
                 || PlayerManager.survivorTeam.entries.size == 0
                 || PlayerManager.killerTeam.entries.size == 0
                 || endsAt < System.currentTimeMillis()) {
-            this.endGame()
+            if (endsAt < System.currentTimeMillis())
+                this.endGame(EndReason.TIME_RUN_OUT)
+            else
+                this.endGame()
             return true
         }
         return false
@@ -424,6 +430,7 @@ class GameManager {
             it.giveCoins()
 
             it.player.gameMode = GameMode.SPECTATOR
+            it.player.playSound(it.player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.AMBIENT, .5F, 0F)
 
             it.updateStats()
         }

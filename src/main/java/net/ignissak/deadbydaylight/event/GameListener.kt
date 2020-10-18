@@ -393,13 +393,13 @@ class GameListener : Listener {
             TextComponentBuilder("§ebrány se otevřou za 30 vteřin!", true).broadcast()
             TextComponentBuilder("").broadcast()
 
-            PlayerManager.survivorTeam.entries.forEach { it.getSurvivor()?.removePotionEffects() }
+            PlayerManager.survivorTeam.entries.forEach { it.getSurvivor()?.removeBlindness() }
 
             Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
                 DeadByDaylight.gameManager.gates.forEach { it1 -> it1.open() }
 
                 TextComponentBuilder("").broadcast()
-                TextComponentBuilder("§a§lBrány se otevřeli!", true).broadcast()
+                TextComponentBuilder("§a§lBrány se otevřely!", true).broadcast()
                 TextComponentBuilder("").broadcast()
 
                 Bukkit.getOnlinePlayers().forEach {

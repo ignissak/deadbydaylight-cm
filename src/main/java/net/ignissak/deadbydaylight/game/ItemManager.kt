@@ -56,7 +56,7 @@ object ItemManager {
 
     val stats: ItemStack
         get() = ItemBuilder(Material.BOOK, 1)
-                .setName("§9Statistiky §7(klikni pravym)")
+                .setName("§aStatistiky §7(klikni pravym)")
                 .setLore("", "§7Klikni s itemem pro zobrazení", "§7menu s tvými statistikami.", "")
                 .hideAllFlags()
                 .build()

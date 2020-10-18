@@ -77,7 +77,7 @@ class BoardManager {
                     hashMap["§fOživil jsi"] = 9
                     hashMap["§c${getNumberOfRevives(gamePlayer.revivedPlayers)}§f."] = 8
                     hashMap["§6"] = 7
-                    hashMap["§fPomohol jsi dokončit"] = 6
+                    hashMap["§fPomohl jsi dokončit"] = 6
                     hashMap["§c${getNumberOfGenerators(DeadByDaylight.gameManager.generators.count { it.contributors.contains(gamePlayer.player.name) })}§f."] = 5
                 } else if (gamePlayer is Killer) {
                     hashMap["§8"] = 8

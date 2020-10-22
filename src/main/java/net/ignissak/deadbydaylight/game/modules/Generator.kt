@@ -57,8 +57,6 @@ class Generator(val location: Location) {
     fun isActivated(): Boolean = progress == 4;
 
     private fun powerUp() {
-        // TODO
-
         Utils.getCenter(location)?.let { location.world?.strikeLightningEffect(it) }
 
         TextComponentBuilder("").broadcast()

@@ -386,8 +386,6 @@ class GameListener : Listener {
         }
         if (DeadByDaylight.gameManager.generators.count { it.isActivated() } == DeadByDaylight.gameManager.neededGenerators) {
 
-            // TODO: Change messages
-
             TextComponentBuilder("").broadcast()
             TextComponentBuilder("§7Potřebný počet generátorů bylo opraveno,", true).broadcast()
             TextComponentBuilder("§ebrány se otevřou za 30 vteřin!", true).broadcast()

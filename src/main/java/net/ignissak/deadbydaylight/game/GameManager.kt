@@ -155,7 +155,6 @@ class GameManager {
     }
 
     private fun startGame() {
-        // TEST: Start game
 
         startedAt = System.currentTimeMillis()
         endsAt = System.currentTimeMillis() + (10 * 60 * 1000) + (15 * 1000)
@@ -273,7 +272,6 @@ class GameManager {
         val run: BukkitRunnable = object : BukkitRunnable() {
             override fun run() {
                 if (countdown == 0) {
-                    // TEST: Start
                     Bukkit.getPluginManager().callEvent(GameStartEvent())
 
                     isDisabledMoving = false
@@ -318,7 +316,6 @@ class GameManager {
         booTask.runTaskTimer(DeadByDaylight.instance, 100L, 200L)
     }
 
-    // TEST
     private fun createTeams() {
         // DEBUG: println(PlayerManager.players.values.stream().map { it.toString() }.toArray().joinToString(", ", "[", "]"))
         // 1: Randomly choose killer, remaining players will fill survivors team
@@ -372,7 +369,6 @@ class GameManager {
     }
 
     fun tryEnd(): Boolean {
-        // TEST
         if (gameState != GameState.INGAME) return false
         if (PlayerManager.survivorTeam.entries.stream().noneMatch { it.getSurvivor()?.survivalState == SurvivalState.PLAYING }
                 || PlayerManager.survivorTeam.entries.size == 0

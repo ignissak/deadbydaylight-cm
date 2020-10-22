@@ -57,7 +57,7 @@ class BoardManager {
             GameState.STARTING -> {
                 hashMap["§5"] = 5
                 hashMap["§fHráči: §c${PlayerManager.players.size}§7/§c5"] = 4
-                hashMap["§fStart za: §c${DeadByDaylight.gameManager.countdown}s"] = 3 // TEST
+                hashMap["§fStart za: §c${DeadByDaylight.gameManager.countdown}s"] = 3
                 hashMap["§2"] = 2
                 hashMap["§7mc.craftmania.cz"] = 1
             }

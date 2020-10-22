@@ -132,7 +132,6 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun revive(revivedBy: Survivor) {
-        // TEST: Implement
         this.survivalState = SurvivalState.PLAYING
         this.showToOthers()
 
@@ -156,7 +155,6 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun die(killer: Killer) {
-        // TODO: Implement
         killer.gameStats.killer_kills += 1
         killer.playerKills += 1
         this.survivalState = SurvivalState.SPECTATING
@@ -167,6 +165,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         PlayerManager.killerTeam.entries.forEach {
             it.getKiller()?.coins = it.getKiller()?.coins?.plus(1)!!
             it.getPlayer()?.sendMessage("§e+1 CC §8[Zabití survivora]")
+            it.getPlayer()?.location?.let { it1 -> it.getPlayer()?.playSound(it1, Sound.ENTITY_CAT_AMBIENT, SoundCategory.AMBIENT, 1F, 1F) }
         }
 
         player.gameMode = GameMode.SPECTATOR

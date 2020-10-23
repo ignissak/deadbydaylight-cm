@@ -1,5 +1,7 @@
 package net.ignissak.deadbydaylight.game.modules
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI
 import cz.craftmania.craftcore.spigot.builders.items.ItemBuilder
 import cz.craftmania.craftcore.spigot.messages.Title
 import net.citizensnpcs.api.CitizensAPI
@@ -35,6 +37,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     var escaped = false
 
     val npc: NPC = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "corpse-${player.name}")
+    var deathHologram: Hologram? = null
 
     init {
         npc.data().remove(NPC.PLAYER_SKIN_UUID_METADATA)
@@ -116,6 +119,9 @@ class Survivor(player: Player) : GamePlayer(player) {
             npc.show(npcSpawnLocation)
             PlayerAnimation.SLEEP.play(npc.entity as Player)
 
+            this.deathHologram = HologramsAPI.createHologram(DeadByDaylight.instance, previousLocation!!.clone().add(.0, .5, .0))
+            this.deathHologram?.appendTextLine("§fShift pro revive")
+
             this.hideFromOthers()
 
             this.survivorDyingTask = SurvivorDyingTask(this)
@@ -146,6 +152,9 @@ class Survivor(player: Player) : GamePlayer(player) {
 
         npc.hide()
 
+        this.deathHologram?.delete()
+        this.deathHologram = null
+
         player.playSound(player.location, Sound.ENTITY_CAT_AMBIENT, SoundCategory.AMBIENT, .5F, 1F)
         previousLocation?.let { player.teleport(it) }
 
@@ -163,8 +172,8 @@ class Survivor(player: Player) : GamePlayer(player) {
         Title("§c§lGAME OVER", "Tady pro tebe hra končí.", 10, 60, 10).send(player)
 
         PlayerManager.killerTeam.entries.forEach {
-            it.getKiller()?.coins = it.getKiller()?.coins?.plus(1)!!
-            it.getPlayer()?.sendMessage("§e+1 CC §8[Zabití survivora]")
+            it.getKiller()?.coins = it.getKiller()?.coins?.plus(5)!!
+            it.getPlayer()?.sendMessage("§e+5 CC §8[Zabití survivora]")
             it.getPlayer()?.location?.let { it1 -> it.getPlayer()?.playSound(it1, Sound.ENTITY_CAT_AMBIENT, SoundCategory.AMBIENT, 1F, 1F) }
         }
 
@@ -175,6 +184,9 @@ class Survivor(player: Player) : GamePlayer(player) {
         gameStats.playtime += endedAt!! - DeadByDaylight.gameManager.startedAt
 
         this.destroyNPC()
+
+        this.deathHologram?.delete()
+        this.deathHologram = null
 
         this.giveCoins()
         this.updateStats()
@@ -212,8 +224,8 @@ class Survivor(player: Player) : GamePlayer(player) {
         TextComponentBuilder(DeadByDaylight.prefix + "${player.name} utekl.").broadcast()
         Title("§a§lUTEKL JSI", "Skvělá práce.", 10, 60, 10).send(player)
 
-        this.coins += 5
-        this.player.sendMessage("§e+5 CC §8[Útěk]")
+        this.coins += 50
+        this.player.sendMessage("§e+50 CC §8[Útěk]")
         this.player.gameMode = GameMode.SPECTATOR
         this.player.inventory.clear()
 

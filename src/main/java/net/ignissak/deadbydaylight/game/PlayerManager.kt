@@ -59,6 +59,7 @@ class PlayerManager {
     }
 
     fun registerSurvivor(gamePlayer: GamePlayer): Survivor {
+        println("Registering ${gamePlayer.player.name} as survivor.")
         survivorTeam.addEntry(gamePlayer.player.name)
 
         val survivor = Survivor(gamePlayer.player)
@@ -68,6 +69,7 @@ class PlayerManager {
     }
 
     fun registerKiller(gamePlayer: GamePlayer): Killer {
+        println("Registering ${gamePlayer.player.name} as killer.")
         killerTeam.addEntry(gamePlayer.player.name)
 
         val killer = Killer(gamePlayer.player)

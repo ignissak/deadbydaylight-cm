@@ -155,6 +155,7 @@ class GameManager {
     }
 
     private fun startGame() {
+        this.createTeams()
 
         startedAt = System.currentTimeMillis()
         endsAt = System.currentTimeMillis() + (10 * 60 * 1000) + (15 * 1000)
@@ -165,11 +166,6 @@ class GameManager {
 
         // Increase statistics
         PlayerManager.players.values.forEach { it.gameStats.games_played += 1 }
-
-        this.createTeams()
-
-        PlayerManager.survivorTeam.entries.filter { it.getGamePlayer() is Survivor }.forEach { println("Survivor: $it") }
-        PlayerManager.killerTeam.entries.forEach { println(it) }
 
         // Killer teleporting
         PlayerManager.killerTeam.entries.forEach {
@@ -310,7 +306,7 @@ class GameManager {
             }
         }
         DeadByDaylight.boardUpdateTask = BoardUpdateTask()
-        DeadByDaylight.boardUpdateTask.runTaskTimerAsynchronously(DeadByDaylight.instance, 20, 20)
+        DeadByDaylight.boardUpdateTask.runTaskTimer(DeadByDaylight.instance, 20, 20)
         DeadByDaylight.instance.let { run.runTaskTimer(it, 0L, 20L) }
 
         booTask.runTaskTimer(DeadByDaylight.instance, 100L, 200L)
@@ -424,8 +420,8 @@ class GameManager {
                 if (it.playerKills >= 2) {
                     it.gameStats.killer_wins += 1
 
-                    it.player.sendMessage("§e+15 CC §8[Výhra]")
-                    it.coins += 15
+                    it.player.sendMessage("§e+30 CC §8[Výhra]")
+                    it.coins += 30
                 }
                 it.player.setPlayerListName(null)
             } else if (it is Survivor) {

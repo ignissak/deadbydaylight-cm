@@ -414,6 +414,7 @@ class GameListener : Listener {
 
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) return
         if (DeadByDaylight.gameManager.gates.all { it.isOpened }) return
+        if (DeadByDaylight.gameManager.generators.count { it.isActivated() } >= DeadByDaylight.gameManager.neededGenerators) return
 
         if (gamePlayer !is Survivor) return
         if (gamePlayer.survivalState != SurvivalState.PLAYING) return

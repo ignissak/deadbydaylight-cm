@@ -36,7 +36,7 @@ abstract class GamePlayer(val player: Player) {
                 CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
             } else {
                 Log.info("Loading data for ${player.name}")
-                gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
+                this.gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
 
                 println(gameStats)
             }

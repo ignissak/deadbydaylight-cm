@@ -7,6 +7,7 @@ import net.ignissak.deadbydaylight.game.modules.Generator
 import net.ignissak.deadbydaylight.game.modules.LootChest
 import net.ignissak.deadbydaylight.utils.LocationUtils
 import net.ignissak.deadbydaylight.utils.TextComponentBuilder
+import org.bukkit.Bukkit
 import org.bukkit.block.Block
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -24,6 +25,10 @@ class AdminCommands : CommandExecutor {
 
         when (command.name.toLowerCase()) {
             "forcestart" -> {
+                if (Bukkit.getOnlinePlayers().size < 2) {
+                    ChatInfo.error(sender, "Musí být aspoň 2 hráči připojeni.")
+                    return true
+                }
                 val action = ConfirmAction.Builder()
                         .setPlayer(sender)
                         .setDelay(15L)

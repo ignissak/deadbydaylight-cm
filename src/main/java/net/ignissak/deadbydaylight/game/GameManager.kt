@@ -275,6 +275,7 @@ class GameManager {
                     Utils.sendSoundGlobally(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1F, 1F)
                     Utils.broadcast(true, "Hra začíná!")
 
+                    // TODO: Even when player leaves in 1 minute interval and does nothing - decrease to min of 3
                     if (startingPlayers - 1 == 3) {
                         neededGenerators = 4
                         Utils.broadcast(true, "Počet potřebných generátorů je znížen na 4, protože hrají jenom 3 survivoři.")
@@ -312,7 +313,6 @@ class GameManager {
         booTask.runTaskTimer(DeadByDaylight.instance, 100L, 200L)
     }
 
-    // BUG: If there are only 4 players, one survivor will be bugged the whole game
     private fun createTeams() {
         // DEBUG: println(PlayerManager.players.values.stream().map { it.toString() }.toArray().joinToString(", ", "[", "]"))
         // 1: Checks if someone has preference for a killer, if so choose randomly from these players
@@ -382,6 +382,10 @@ class GameManager {
                 || endsAt < System.currentTimeMillis()) {
             if (endsAt < System.currentTimeMillis())
                 this.endGame(EndReason.TIME_RUN_OUT)
+            else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills == this.startingPlayers })
+                this.endGame(EndReason.KILLER_KILLED_EVERYONE)
+            else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills == 0 } && PlayerManager.survivorTeam.entries.any { it.getSurvivor()?.escaped!! })
+                this.endGame(EndReason.SURVIVORS_LEFT)
             else
                 this.endGame()
             return true
@@ -414,10 +418,10 @@ class GameManager {
 
         lootChests.forEach { it.close() }
 
-        PlayerManager.players.values.forEach {
+        PlayerManager.players.values.forEach { it ->
             if (it is Killer) {
                 it.gameStats.playtime += System.currentTimeMillis() - startedAt
-                if (it.playerKills >= 2) {
+                if (it.playerKills >= 2 || (endReason == EndReason.TIME_RUN_OUT && DeadByDaylight.gameManager.gates.all { it1 -> !it1.isOpened })) {
                     it.gameStats.killer_wins += 1
 
                     it.player.sendMessage("§e+30 CC §8[Výhra]")
@@ -439,8 +443,11 @@ class GameManager {
 
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§c§lKONEC HRY", true).broadcast()
-        if (endReason == EndReason.TIME_RUN_OUT)
-            TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
+        when (endReason) {
+            EndReason.TIME_RUN_OUT -> TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
+            EndReason.SURVIVORS_LEFT -> TextComponentBuilder("§8[Survivoři utekli]", true).broadcast()
+            EndReason.KILLER_KILLED_EVERYONE -> TextComponentBuilder("§8[Killer všechny zabil]", true).broadcast()
+        }
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§fDěkujeme za zahrání naší", true).broadcast()
         TextComponentBuilder("§fHalloween minihry.", true).broadcast()

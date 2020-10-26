@@ -22,18 +22,19 @@ import xyz.upperlevel.spigot.book.BookUtil
 
 abstract class GamePlayer(val player: Player) {
 
-    var gameStats: GameStats = GameStats()
+    lateinit var gameStats: GameStats
     private val gson: Gson = Gson()
     var rolePreference: RolePreference = RolePreference.FILL
     var coins: Int = 0
     private var gotCoins: Boolean = false
 
-    fun onJoin() {
+    init {
         // Loading statistics
-        CraftLibs.getSqlManager().query("SELECT * FROM dbd_players WHERE uuid = ?;", player.uniqueId.toString()).whenComplete{ dbRows, _ ->
+        CraftLibs.getSqlManager().query("SELECT * FROM dbd_players WHERE uuid = ?;", player.uniqueId.toString()).thenAccept{ dbRows ->
             if (dbRows.isEmpty()) {
                 Log.info("Inserting data for ${player.name}")
                 CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
+                this.gameStats = GameStats()
             } else {
                 Log.info("Loading data for ${player.name}")
                 this.gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
@@ -41,7 +42,9 @@ abstract class GamePlayer(val player: Player) {
                 println(gameStats)
             }
         }
+    }
 
+    fun onJoin() {
         this.unDisguise()
 
         player.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = 20.0

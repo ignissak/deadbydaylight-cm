@@ -1,6 +1,5 @@
 package net.ignissak.deadbydaylight.game.modules
 
-// BUG: For some reason, the stats will reset after each new game.
 data class GameStats(var games_played: Int = 0,
                      var killer_kills: Int = 0,
                      var killer_downs: Int = 0,

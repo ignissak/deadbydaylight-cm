@@ -275,7 +275,7 @@ class GameManager {
                     Utils.sendSoundGlobally(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1F, 1F)
                     Utils.broadcast(true, "Hra začíná!")
 
-                    // TODO: Even when player leaves in 1 minute interval and does nothing - decrease to min of 3
+                    // TEST: Even when player leaves in 1 minute interval and does nothing - decrease to min of 3
                     if (startingPlayers - 1 == 3) {
                         neededGenerators = 4
                         Utils.broadcast(true, "Počet potřebných generátorů je znížen na 4, protože hrají jenom 3 survivoři.")
@@ -376,21 +376,24 @@ class GameManager {
 
     fun tryEnd(): Boolean {
         if (gameState != GameState.INGAME) return false
-        if (PlayerManager.survivorTeam.entries.stream().noneMatch { it.getSurvivor()?.survivalState == SurvivalState.PLAYING }
-                || PlayerManager.survivorTeam.entries.size == 0
-                || PlayerManager.killerTeam.entries.size == 0
-                || endsAt < System.currentTimeMillis()) {
-            if (endsAt < System.currentTimeMillis())
-                this.endGame(EndReason.TIME_RUN_OUT)
-            else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills == this.startingPlayers })
-                this.endGame(EndReason.KILLER_KILLED_EVERYONE)
-            else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills == 0 } && PlayerManager.survivorTeam.entries.any { it.getSurvivor()?.escaped!! })
-                this.endGame(EndReason.SURVIVORS_LEFT)
-            else
-                this.endGame()
-            return true
-        }
-        return false
+        var endReason: EndReason? = null
+
+        if (PlayerManager.survivorTeam.entries.stream().noneMatch { it.getSurvivor()?.survivalState == SurvivalState.PLAYING } && PlayerManager.survivorTeam.entries.stream().anyMatch { it.getSurvivor()?.escaped!! })
+            endReason = EndReason.SURVIVORS_ESCAPED
+        else if (PlayerManager.killerTeam.entries.size == 0)
+            endReason = EndReason.KILLER_QUIT
+        else if (PlayerManager.survivorTeam.entries.size == 0)
+            endReason = EndReason.SURVIVORS_QUIT
+        else if (endsAt < System.currentTimeMillis())
+            endReason = EndReason.TIME_RUN_OUT
+        else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayers - 2 })
+            endReason = EndReason.KILLER_WON
+
+        if (endReason == null)
+            return false
+
+        this.endGame(endReason)
+        return true
     }
 
     private fun endGame(endReason: EndReason? = null) {
@@ -445,8 +448,10 @@ class GameManager {
         TextComponentBuilder("§c§lKONEC HRY", true).broadcast()
         when (endReason) {
             EndReason.TIME_RUN_OUT -> TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
-            EndReason.SURVIVORS_LEFT -> TextComponentBuilder("§8[Survivoři utekli]", true).broadcast()
-            EndReason.KILLER_KILLED_EVERYONE -> TextComponentBuilder("§8[Killer všechny zabil]", true).broadcast()
+            EndReason.SURVIVORS_ESCAPED -> TextComponentBuilder("§8[Survivoři utekli]", true).broadcast()
+            EndReason.KILLER_WON -> TextComponentBuilder("§8[Killer všechny zabil]", true).broadcast()
+            EndReason.KILLER_QUIT -> TextComponentBuilder("§8[Killer opustil hru]", true).broadcast()
+            EndReason.SURVIVORS_QUIT -> TextComponentBuilder("§8[Survivoři opustili hru]", true).broadcast()
         }
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§fDěkujeme za zahrání naší", true).broadcast()
@@ -479,6 +484,18 @@ class GameManager {
 
     private fun shutDown() {
         Bukkit.shutdown()
+    }
+
+    fun playerLeftIngame(survivor: Survivor) {
+        // This is run before player is unregistered from team
+        if (PlayerManager.survivorTeam.size in 3..4) { // If there were 3-4 survivors
+            if (System.currentTimeMillis() - startedAt < 60000) {
+                if (this.neededGenerators > 3 && generators.none { it.contributors.contains(survivor.player.name) }) {
+                    this.neededGenerators -= 1
+                    Utils.broadcast(true, "AFK hráč se odpojil, počet potřebných generátorů byl znížen na ${this.neededGenerators}.")
+                }
+            }
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.ItemManager
 import net.ignissak.deadbydaylight.game.interfaces.GamePlayer
 import net.ignissak.deadbydaylight.game.interfaces.GameState
+import net.ignissak.deadbydaylight.game.modules.Survivor
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -26,7 +27,11 @@ class JoinListener : Listener {
 
     @EventHandler
     fun onPing(event: ServerListPingEvent) {
-        event.motd = DeadByDaylight.gameManager.gameState.toString()
+        when (DeadByDaylight.gameManager.gameState) {
+            GameState.LOBBY, GameState.STARTING -> event.motd = "LOBBY"
+            GameState.INGAME, GameState.ENDING -> event.motd = "INGAME"
+        }
+        //event.motd = DeadByDaylight.gameManager.gameState.toString()
     }
 
     @EventHandler
@@ -49,7 +54,9 @@ class JoinListener : Listener {
         val craftPlayer: GamePlayer = DeadByDaylight.playerManager.getGamePlayer(player) ?: return
 
         if (DeadByDaylight.gameManager.gameState == GameState.INGAME) {
-            DeadByDaylight.gameManager.tryEnd()
+            val b = DeadByDaylight.gameManager.tryEnd()
+            if (!b && craftPlayer is Survivor)
+                DeadByDaylight.gameManager.playerLeftIngame(craftPlayer)
         }
 
         event.quitMessage = "${DeadByDaylight.prefix}${player.name} se §codpojil §7(${Bukkit.getOnlinePlayers().size - 1}/5)"

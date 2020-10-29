@@ -172,8 +172,8 @@ class Survivor(player: Player) : GamePlayer(player) {
         Title("§c§lGAME OVER", "Tady pro tebe hra končí.", 10, 60, 10).send(player)
 
         PlayerManager.killerTeam.entries.forEach {
-            it.getKiller()?.coins = it.getKiller()?.coins?.plus(5)!!
-            it.getPlayer()?.sendMessage("§e+5 CC §8[Zabití survivora]")
+            it.getKiller()?.coins = it.getKiller()?.coins?.plus(7)!!
+            it.getPlayer()?.sendMessage("§e+7 CC §8[Zabití survivora]")
             it.getPlayer()?.location?.let { it1 -> it.getPlayer()?.playSound(it1, Sound.ENTITY_CAT_AMBIENT, SoundCategory.AMBIENT, 1F, 1F) }
         }
 

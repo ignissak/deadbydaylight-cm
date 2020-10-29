@@ -12,7 +12,6 @@ import net.ignissak.deadbydaylight.utils.getGamePlayer
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
-import java.util.*
 
 class Generator(val location: Location) {
 
@@ -54,7 +53,7 @@ class Generator(val location: Location) {
         hologram.appendTextLine(getPercentage())
     }
 
-    fun isActivated(): Boolean = progress == 4;
+    fun isActivated(): Boolean = progress == 4
 
     private fun powerUp() {
         Utils.getCenter(location)?.let { location.world?.strikeLightningEffect(it) }
@@ -64,7 +63,7 @@ class Generator(val location: Location) {
         TextComponentBuilder("&8[${GameRegion.getRegionAt(location)?.title}]", true).broadcast()
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("&7Generátor opravili:", true).broadcast()
-        TextComponentBuilder("&f${this.contributors.distinct().joinToString(", ") }", true).broadcast()
+        TextComponentBuilder("&f${this.contributors.distinct().joinToString(", ")}", true).broadcast()
         TextComponentBuilder("").broadcast()
 
         this.contributors.distinct().forEach { it ->

@@ -81,18 +81,22 @@ class Utils {
             }
             return null
         }
+
         @JvmStatic
         fun sendSoundGlobally(sound: Sound, volume: Float, pitch: Float) {
             Bukkit.getOnlinePlayers().forEach { it.playSound(it.location, sound, volume, pitch) }
         }
+
         @JvmStatic
         fun broadcast(withPrefix: Boolean = true, message: String) {
             Bukkit.getOnlinePlayers().forEach { it.sendMessage(if (withPrefix) "§c§lHALLOWEEN §8| §7$message" else message) }
         }
+
         @JvmStatic
         fun broadcastTip(message: String) {
             Bukkit.getOnlinePlayers().forEach { it.sendMessage("§c§lTIP §8| §7$message") }
         }
+
         @JvmStatic
         fun getCenter(loc: Location): Location? {
             return loc.clone().add(.5, .5, .5)
@@ -109,11 +113,11 @@ fun String?.getGamePlayer(): GamePlayer? {
 }
 
 fun String?.getSurvivor(): Survivor? {
-    return this?.let{ getGamePlayer() as Survivor }
+    return this?.let { getGamePlayer() as Survivor }
 }
 
 fun String?.getKiller(): Killer? {
-    return this?.let{ getGamePlayer() as Killer }
+    return this?.let { getGamePlayer() as Killer }
 }
 
 fun Player?.getGamePlayer(): GamePlayer? {

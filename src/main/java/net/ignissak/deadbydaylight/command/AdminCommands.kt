@@ -35,7 +35,7 @@ class AdminCommands : CommandExecutor {
                         .generateIdentifier()
                         .addComponent { action -> TextComponentBuilder("&aKlikni zde pokud chceš force startnout hru.").setTooltip("Force startnout hru").setPerformedCommand(action.confirmationCommand).component }
                         .setRunnable { DeadByDaylight.gameManager.forceStart() }
-                        .setExpireRunnable{ p -> ChatInfo.warning(p, "Force startnutí hry vypršelo.")}
+                        .setExpireRunnable { p -> ChatInfo.warning(p, "Force startnutí hry vypršelo.") }
                         .build()
                 action.sendTextComponents()
                 return true

@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scheduler.BukkitTask
 import org.bukkit.util.Vector
-import java.lang.Exception
 
 class LootChest(val location: Location) {
 
@@ -45,7 +44,7 @@ class LootChest(val location: Location) {
         val packet = PacketPlayOutBlockAction(pos, Blocks.CHEST, 1, 1)
         Bukkit.getOnlinePlayers().forEach { (it as CraftPlayer).handle.playerConnection.sendPacket(packet) }
 
-        bukkitTask = object: BukkitRunnable() {
+        bukkitTask = object : BukkitRunnable() {
             override fun run() {
                 this@LootChest.close()
                 this@LootChest.loot.add(ItemManager.battery)

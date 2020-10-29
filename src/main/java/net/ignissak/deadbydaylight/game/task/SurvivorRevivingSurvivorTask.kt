@@ -8,7 +8,7 @@ import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.scheduler.BukkitRunnable
 
-class SurvivorRevivingSurvivorTask(private val survivorReviving: Survivor, val survivorToBeRevived: Survivor): BukkitRunnable() {
+class SurvivorRevivingSurvivorTask(private val survivorReviving: Survivor, val survivorToBeRevived: Survivor) : BukkitRunnable() {
 
     var remainingHalfSeconds = 8
 

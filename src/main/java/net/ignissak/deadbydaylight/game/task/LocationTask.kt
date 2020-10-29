@@ -19,7 +19,7 @@ class LocationTask : BukkitRunnable() {
 
             val region = GameRegion.getRegionAt(it.location) ?: return@forEach
 
-            it.spigot().sendMessage(ChatMessageType.ACTION_BAR, *TextComponent.fromLegacyText(region.title));
+            it.spigot().sendMessage(ChatMessageType.ACTION_BAR, *TextComponent.fromLegacyText(region.title))
         }
     }
 

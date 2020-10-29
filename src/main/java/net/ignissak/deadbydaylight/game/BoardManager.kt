@@ -98,7 +98,7 @@ class BoardManager {
     private fun getActivatedGenerators(): String {
         val stringBuilder = StringBuilder()
         var i = 0
-        DeadByDaylight.gameManager.generators.sortedBy { !it.isActivated() }.forEach{ generator ->
+        DeadByDaylight.gameManager.generators.sortedBy { !it.isActivated() }.forEach { generator ->
             if (i == DeadByDaylight.gameManager.neededGenerators) {
                 stringBuilder.append("§7|")
             }

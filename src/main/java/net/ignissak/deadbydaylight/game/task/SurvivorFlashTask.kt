@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.scheduler.BukkitRunnable
 
-class SurvivorFlashTask(private val survivor: Survivor): BukkitRunnable() {
+class SurvivorFlashTask(private val survivor: Survivor) : BukkitRunnable() {
 
     override fun run() {
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME) {

@@ -1,11 +1,7 @@
 package net.ignissak.deadbydaylight.game.interfaces
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter
-import com.sk89q.worldedit.bukkit.BukkitWorld
-import com.sk89q.worldedit.regions.CuboidRegion
-import com.sk89q.worldguard.protection.ApplicableRegionSet
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion
-import com.sk89q.worldguard.protection.regions.ProtectedRegion
 import net.ignissak.deadbydaylight.DeadByDaylight
 import org.bukkit.Location
 

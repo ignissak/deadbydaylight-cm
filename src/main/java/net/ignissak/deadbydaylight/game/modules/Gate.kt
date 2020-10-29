@@ -20,11 +20,11 @@ class Gate(val region: GameRegion, private val material: Material) {
         val protectedRegion = this.region.getApplicableRegion(region.regionNames[0]) ?: return
 
         val blocks = mutableListOf<Location>()
-        for (x in protectedRegion.minimumPoint.x .. protectedRegion.maximumPoint.x) {
-            for (y in protectedRegion.minimumPoint.y .. protectedRegion.maximumPoint.y) {
-                for (z in protectedRegion.minimumPoint.z .. protectedRegion.maximumPoint.z) {
+        for (x in protectedRegion.minimumPoint.x..protectedRegion.maximumPoint.x) {
+            for (y in protectedRegion.minimumPoint.y..protectedRegion.maximumPoint.y) {
+                for (z in protectedRegion.minimumPoint.z..protectedRegion.maximumPoint.z) {
                     blocks.add(Location(DeadByDaylight.gameManager.lobbyLocation!!.world,
-                    x.toDouble(), y.toDouble(), z.toDouble(), 0F, 0F))
+                            x.toDouble(), y.toDouble(), z.toDouble(), 0F, 0F))
                 }
             }
         }

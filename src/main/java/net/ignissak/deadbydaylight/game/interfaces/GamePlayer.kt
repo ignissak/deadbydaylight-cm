@@ -29,18 +29,23 @@ abstract class GamePlayer(val player: Player) {
     private var gotCoins: Boolean = false
 
     init {
-        // Loading statistics
-        CraftLibs.getSqlManager().query("SELECT * FROM dbd_players WHERE uuid = ?;", player.uniqueId.toString()).thenAccept{ dbRows ->
-            if (dbRows.isEmpty()) {
-                Log.info("Inserting data for ${player.name}")
-                CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
-                this.gameStats = GameStats()
-            } else {
-                Log.info("Loading data for ${player.name}")
-                this.gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
+        try {
+            // Loading statistics
+            CraftLibs.getSqlManager().query("SELECT * FROM dbd_players WHERE uuid = ?;", player.uniqueId.toString()).thenAccept { dbRows ->
+                if (dbRows.isEmpty()) {
+                    Log.info("Inserting data for ${player.name}")
+                    CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
+                    this.gameStats = GameStats()
+                } else {
+                    Log.info("Loading data for ${player.name}")
+                    this.gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
 
-                println(gameStats)
+                    println(gameStats)
+                }
             }
+        } catch (e: Exception) {
+            Log.fatal("Could not fetch data for ${player.name}, player was disconnected.")
+            player.kickPlayer("Nepodařilo se získat tvé data z databáze, byl jsi vyhozen.")
         }
     }
 

@@ -22,25 +22,25 @@ class StatsMenu : InventoryProvider {
         val killerStats = ItemBuilder(Material.IRON_AXE)
                 .setName("${Constants.killerColor}Statistiky za killera")
                 .setLore("§7Killy: §f${stats.killer_kills}",
-                "§7Hity: §f${stats.killer_hits}",
-                "§7Ssmrtelné zasažení: §f${stats.killer_downs}",
-                "§7Výhry: §f${stats.killer_wins}")
+                        "§7Hity: §f${stats.killer_hits}",
+                        "§7Ssmrtelné zasažení: §f${stats.killer_downs}",
+                        "§7Výhry: §f${stats.killer_wins}")
                 .hideAllFlags()
                 .build()
 
         val survivorStats = ItemBuilder(Material.LEATHER_BOOTS)
                 .setName("${Constants.survivorColor}Statistiky za survivora")
                 .setLore("§7Spuštěné generátory: §f${stats.survivor_generators_powered}",
-                "§7Vložené baterie: §f${stats.survivor_fuels_filled}",
-                "§7Výlečení spoluhráčů: §f${stats.survivor_players_revived}",
-                "§7Výher: §f${stats.survivor_wins}")
+                        "§7Vložené baterie: §f${stats.survivor_fuels_filled}",
+                        "§7Výlečení spoluhráčů: §f${stats.survivor_players_revived}",
+                        "§7Výher: §f${stats.survivor_wins}")
                 .hideAllFlags()
                 .build()
-        
+
         val general = ItemBuilder(Material.PAPER)
                 .setName("§9Všeobecné statistiky")
                 .setLore("§7Playtime: §f${DurationFormatUtils.formatDuration(stats.playtime, "HH'h' mm'm' ss's'")}",
-                "§7Odehráných her: §f${stats.games_played}")
+                        "§7Odehráných her: §f${stats.games_played}")
                 .hideAllFlags()
                 .build()
 

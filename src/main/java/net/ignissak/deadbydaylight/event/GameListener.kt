@@ -36,7 +36,6 @@ import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.potion.PotionEffectType
-import java.lang.Exception
 
 
 class GameListener : Listener {

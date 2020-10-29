@@ -3,7 +3,6 @@ package net.ignissak.deadbydaylight.utils
 import net.ignissak.deadbydaylight.api.exception.CouldNotParseLocation
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import java.lang.Exception
 
 class LocationUtils {
 

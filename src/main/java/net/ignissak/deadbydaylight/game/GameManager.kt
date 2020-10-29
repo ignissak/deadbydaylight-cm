@@ -20,7 +20,6 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
-import java.lang.IllegalStateException
 import java.util.*
 import java.util.stream.Collectors
 
@@ -404,15 +403,18 @@ class GameManager {
         try {
             runningGeneratorTask.cancel()
 
-        } catch (ignored: IllegalStateException) { }
+        } catch (ignored: IllegalStateException) {
+        }
 
         try {
             checkTask.cancel()
-        } catch (ignored: IllegalStateException) { }
+        } catch (ignored: IllegalStateException) {
+        }
 
         try {
             booTask.cancel()
-        } catch (ignored: IllegalStateException) { }
+        } catch (ignored: IllegalStateException) {
+        }
 
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
         DeadByDaylight.boardManager.updateAllPlayers()
@@ -464,7 +466,7 @@ class GameManager {
 
         var i = 10
 
-        object: BukkitRunnable() {
+        object : BukkitRunnable() {
             override fun run() {
                 if (i == 0) {
                     this.cancel()

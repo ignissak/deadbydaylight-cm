@@ -24,6 +24,7 @@ abstract class GamePlayer(val player: Player) {
 
     lateinit var gameStats: GameStats
     private val gson: Gson = Gson()
+    // TODO: Save this to the database
     var rolePreference: RolePreference = RolePreference.FILL
     var coins: Int = 0
     private var gotCoins: Boolean = false
@@ -34,8 +35,9 @@ abstract class GamePlayer(val player: Player) {
             CraftLibs.getSqlManager().query("SELECT * FROM dbd_players WHERE uuid = ?;", player.uniqueId.toString()).thenAccept { dbRows ->
                 if (dbRows.isEmpty()) {
                     Log.info("Inserting data for ${player.name}")
-                    CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
+
                     this.gameStats = GameStats()
+                    CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
                 } else {
                     Log.info("Loading data for ${player.name}")
                     this.gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
@@ -46,6 +48,10 @@ abstract class GamePlayer(val player: Player) {
         } catch (e: Exception) {
             Log.fatal("Could not fetch data for ${player.name}, player was disconnected.")
             player.kickPlayer("Nepodařilo se získat tvé data z databáze, byl jsi vyhozen.")
+        }
+
+        if (!this::gameStats.isInitialized) {
+            this.gameStats = GameStats()
         }
     }
 

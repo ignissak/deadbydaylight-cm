@@ -12,7 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable
 
 class SurvivorDyingTask(private val survivor: Survivor) : BukkitRunnable() {
 
-    private var remainingTime: Int = 20
+    private var remainingTime: Int = 30
 
     override fun run() {
         if (survivor.survivalState != SurvivalState.DYING) {

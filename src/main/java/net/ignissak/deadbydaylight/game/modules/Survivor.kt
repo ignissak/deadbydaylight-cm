@@ -282,7 +282,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun giveBlindness() {
-        if (DeadByDaylight.gameManager.areGatesOpened()) return
+        if (DeadByDaylight.gameManager.areGatesOpened() || DeadByDaylight.gameManager.areEnoughGeneratorsPowered()) return
         if (survivalState != SurvivalState.PLAYING) return
         if (player.hasPotionEffect(PotionEffectType.SPEED)) return
         player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false, false))

@@ -62,6 +62,7 @@ class GameListener : Listener {
         if (event.action == Action.RIGHT_CLICK_BLOCK || event.action == Action.RIGHT_CLICK_AIR) {
             // Bandage
             if (gamePlayer !is Survivor) return
+            if (gamePlayer.survivalState != SurvivalState.PLAYING) return
             if (!player.inventory.itemInMainHand.isSimilar(ItemManager.bandage)) return
             // Ignore full health survivor
             if (player.health >= 4.0) return
@@ -245,7 +246,7 @@ class GameListener : Listener {
                 //player.sendMessage("§e+1CC §8[Nalezení bandáže]")
                 return
             } else event.isCancelled = true
-        } else if (itemStack.isSimilar(ItemManager.flash)) {
+        } else if (itemStack.type == Material.FLINT_AND_STEEL) {
             if (!player.inventory.contains(Material.FLINT_AND_STEEL)) {
                 val packet = PacketPlayOutCollect(item.entityId, player.entityId, 1)
                 (player as CraftPlayer).handle.playerConnection.sendPacket(packet)

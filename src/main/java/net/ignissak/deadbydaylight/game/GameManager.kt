@@ -49,7 +49,7 @@ class GameManager {
 
     var locationTask: LocationTask = LocationTask()
     var checkTask: FrequentTryEndTask = FrequentTryEndTask()
-    var booTask = BooTask()
+    private var booTask = BooTask()
 
     // Default: 5
     // If only 3 survivors: 4
@@ -276,8 +276,8 @@ class GameManager {
 
                     // TEST: Even when player leaves in 1 minute interval and does nothing - decrease to min of 3
                     if (startingPlayers - 1 == 3) {
-                        neededGenerators = 4
-                        Utils.broadcast(true, "Počet potřebných generátorů je znížen na 4, protože hrají jenom 3 survivoři.")
+                        neededGenerators -= 1
+                        Utils.broadcast(true, "Počet potřebných generátorů je znížen na $neededGenerators, protože hrají jenom 3 survivoři.")
                     }
 
                     PlayerManager.survivorTeam.entries.forEach {
@@ -385,7 +385,7 @@ class GameManager {
             endReason = EndReason.SURVIVORS_QUIT
         else if (endsAt < System.currentTimeMillis())
             endReason = EndReason.TIME_RUN_OUT
-        else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayers - 2 })
+        else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayers - 2 } && PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
             endReason = EndReason.KILLER_WON
 
         if (endReason == null)
@@ -423,7 +423,7 @@ class GameManager {
 
         lootChests.forEach { it.close() }
 
-        PlayerManager.players.values.forEach { it ->
+        PlayerManager.players.values.forEach {
             if (it is Killer) {
                 it.gameStats.playtime += System.currentTimeMillis() - startedAt
                 if (it.playerKills >= 2 || (endReason == EndReason.TIME_RUN_OUT && DeadByDaylight.gameManager.gates.all { it1 -> !it1.isOpened })) {
@@ -566,6 +566,8 @@ class GameManager {
     }
 
     fun areGatesOpened(): Boolean = gates.all { it.isOpened }
+
+    fun areEnoughGeneratorsPowered(): Boolean = generators.count { it.isActivated() } >= this.neededGenerators
 
     private fun spawnRandomFirework(loc: Location) {
         val colors: Array<Color> = arrayOf(Color.AQUA, Color.BLUE, Color.FUCHSIA, Color.GRAY, Color.GREEN, Color.LIME, Color.MAROON, Color.NAVY, Color.OLIVE, Color.ORANGE, Color.PURPLE, Color.RED, Color.SILVER, Color.TEAL, Color.WHITE, Color.YELLOW)

@@ -23,7 +23,7 @@ class StatsMenu : InventoryProvider {
                 .setName("${Constants.killerColor}Statistiky za killera")
                 .setLore("§7Killy: §f${stats.killer_kills}",
                         "§7Hity: §f${stats.killer_hits}",
-                        "§7Ssmrtelné zasažení: §f${stats.killer_downs}",
+                        "§7Smrtelné zasažení: §f${stats.killer_downs}",
                         "§7Výhry: §f${stats.killer_wins}")
                 .hideAllFlags()
                 .build()

@@ -24,7 +24,6 @@ abstract class GamePlayer(val player: Player) {
 
     lateinit var gameStats: GameStats
     private val gson: Gson = Gson()
-    // TEST: Save role preference to the database
     var coins: Int = 0
     private var gotCoins: Boolean = false
 

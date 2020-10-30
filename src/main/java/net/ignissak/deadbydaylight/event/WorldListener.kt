@@ -41,6 +41,6 @@ class WorldListener : Listener {
 
     @EventHandler
     fun onTabComplete(event: TabCompleteEvent) {
-        if (!event.sender.isOp) event.completions.clear()
+        if (!event.sender.isOp) event.completions = mutableListOf()
     }
 }

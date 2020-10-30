@@ -8,7 +8,6 @@ package net.ignissak.deadbydaylight.game
 
 import cz.craftmania.craftcore.spigot.messages.Title
 import net.ignissak.deadbydaylight.DeadByDaylight
-import net.ignissak.deadbydaylight.api.event.GameStartEvent
 import net.ignissak.deadbydaylight.game.interfaces.*
 import net.ignissak.deadbydaylight.game.modules.*
 import net.ignissak.deadbydaylight.game.task.*
@@ -262,14 +261,15 @@ class GameManager {
         TextComponentBuilder("&7někde na zemi pohozené.", true).send(PlayerManager.survivorTeam)
         TextComponentBuilder("").send(PlayerManager.survivorTeam)
 
+        Log.info("Game is starting in 15 seconds..")
+
         this.countdown = 15
 
         val run: BukkitRunnable = object : BukkitRunnable() {
             override fun run() {
                 if (countdown == 0) {
-                    Bukkit.getPluginManager().callEvent(GameStartEvent())
-
                     isDisabledMoving = false
+
                     Title("§c§lHRA ZAČÍNÁ", "§7Hodně štěstí!", 0, 60, 20).broadcast()
                     Utils.sendSoundGlobally(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1F, 1F)
                     Utils.broadcast(true, "Hra začíná!")
@@ -290,6 +290,9 @@ class GameManager {
 
                     locationTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
                     checkTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
+
+                    Log.success("Game started!")
+                    Log.success("Starting players: $startingPlayers")
 
                     this.cancel()
                     return
@@ -461,6 +464,8 @@ class GameManager {
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§8Made with <3 by iGniSsak", true).broadcast()
         TextComponentBuilder("").broadcast()
+
+        Log.info("Game ends (endReason = $endReason).")
 
         Utils.broadcast(true, "Za 15 sekund se restartuje server.")
 

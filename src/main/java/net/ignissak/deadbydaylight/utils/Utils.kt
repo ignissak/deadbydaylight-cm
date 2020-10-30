@@ -7,10 +7,7 @@ import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.Survivor
 import net.minecraft.server.v1_16_R2.NBTTagCompound
 import net.minecraft.server.v1_16_R2.NBTTagList
-import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Sound
+import org.bukkit.*
 import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerTeleportEvent
@@ -89,7 +86,8 @@ class Utils {
 
         @JvmStatic
         fun broadcast(withPrefix: Boolean = true, message: String) {
-            Bukkit.getOnlinePlayers().forEach { it.sendMessage(if (withPrefix) "§c§lHALLOWEEN §8| §7$message" else message) }
+            Bukkit.getOnlinePlayers().forEach { it.sendMessage(ChatColor.translateAlternateColorCodes('&', if (withPrefix) "&c&lHALLOWEEN &8| &7$message" else "&7$message")) }
+            println(ChatColor.translateAlternateColorCodes('&', if (withPrefix) "&c&lHALLOWEEN &8| &7$message" else "&7$message"))
         }
 
         @JvmStatic

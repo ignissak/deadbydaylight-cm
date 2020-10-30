@@ -59,19 +59,19 @@ class RolePreferenceMenu : InventoryProvider {
                 .hideAllFlags()
                 .build()
 
-        when (gamePlayer.rolePreference) {
+        when (gamePlayer.gameStats.role_preference) {
             RolePreference.KILLER -> {
                 contents.set(0, 0, ClickableItem.empty(killerSelected))
 
                 contents.set(0, 2, ClickableItem.of(survivorNotSelected) {
-                    gamePlayer.rolePreference = RolePreference.SURVIVOR
+                    gamePlayer.gameStats.role_preference = RolePreference.SURVIVOR
                     player.closeInventory()
 
                     ChatInfo.success(player, "Preference změněna na survivora.")
                 })
 
                 contents.set(0, 4, ClickableItem.of(fillNotSelected) {
-                    gamePlayer.rolePreference = RolePreference.FILL
+                    gamePlayer.gameStats.role_preference = RolePreference.FILL
                     player.closeInventory()
 
                     ChatInfo.success(player, "Preference změněna na doplnění týmů.")
@@ -80,7 +80,7 @@ class RolePreferenceMenu : InventoryProvider {
             }
             RolePreference.SURVIVOR -> {
                 contents.set(0, 0, ClickableItem.of(killerNotSelected) {
-                    gamePlayer.rolePreference = RolePreference.KILLER
+                    gamePlayer.gameStats.role_preference = RolePreference.KILLER
                     player.closeInventory()
 
                     ChatInfo.success(player, "Preference změněna na killera.")
@@ -89,7 +89,7 @@ class RolePreferenceMenu : InventoryProvider {
                 contents.set(0, 2, ClickableItem.empty(survivorSelected))
 
                 contents.set(0, 4, ClickableItem.of(fillNotSelected) {
-                    gamePlayer.rolePreference = RolePreference.FILL
+                    gamePlayer.gameStats.role_preference = RolePreference.FILL
                     player.closeInventory()
 
                     ChatInfo.success(player, "Preference změněna na doplnění týmů.")
@@ -98,14 +98,14 @@ class RolePreferenceMenu : InventoryProvider {
             }
             RolePreference.FILL -> {
                 contents.set(0, 0, ClickableItem.of(killerNotSelected) {
-                    gamePlayer.rolePreference = RolePreference.KILLER
+                    gamePlayer.gameStats.role_preference = RolePreference.KILLER
                     player.closeInventory()
 
                     ChatInfo.success(player, "Preference změněna na killera.")
                 })
 
                 contents.set(0, 2, ClickableItem.of(survivorNotSelected) {
-                    gamePlayer.rolePreference = RolePreference.SURVIVOR
+                    gamePlayer.gameStats.role_preference = RolePreference.SURVIVOR
                     player.closeInventory()
 
                     ChatInfo.success(player, "Preference změněna na survivora.")

@@ -316,16 +316,16 @@ class GameManager {
         // DEBUG: println(PlayerManager.players.values.stream().map { it.toString() }.toArray().joinToString(", ", "[", "]"))
         // 1: Checks if someone has preference for a killer, if so choose randomly from these players
         val players = PlayerManager.players.values
-        if (players.stream().anyMatch { it.rolePreference == RolePreference.KILLER }) {
-            val killer = players.filter { it.rolePreference == RolePreference.KILLER }.random()
+        if (players.stream().anyMatch { it.gameStats.role_preference == RolePreference.KILLER }) {
+            val killer = players.filter { it.gameStats.role_preference == RolePreference.KILLER }.random()
             DeadByDaylight.playerManager.registerKiller(killer)
             players.remove(killer)
         }
 
         // 2: Assign 4 players with survivor preference
-        if (players.stream().filter { it.rolePreference == RolePreference.SURVIVOR && !it.isAssignedToTeam() }.count().toInt() == 5) {
+        if (players.stream().filter { it.gameStats.role_preference == RolePreference.SURVIVOR && !it.isAssignedToTeam() }.count().toInt() == 5) {
             // All 5 players want to be survivors, choose randomly
-            val collect = players.stream().filter { it.rolePreference == RolePreference.SURVIVOR }.collect(Collectors.toList())
+            val collect = players.stream().filter { it.gameStats.role_preference == RolePreference.SURVIVOR }.collect(Collectors.toList())
             val iterator: MutableIterator<GamePlayer> = collect.shuffled().iterator() as MutableIterator<GamePlayer>
             for (i in 1..4) {
                 if (!iterator.hasNext()) continue
@@ -336,7 +336,7 @@ class GameManager {
                 players.remove(gamePlayer)
             }
         } else {
-            for (gamePlayer in players.stream().filter { it.rolePreference == RolePreference.SURVIVOR && !it.isAssignedToTeam() }) {
+            for (gamePlayer in players.stream().filter { it.gameStats.role_preference == RolePreference.SURVIVOR && !it.isAssignedToTeam() }) {
                 DeadByDaylight.playerManager.registerSurvivor(gamePlayer)
                 players.remove(gamePlayer)
             }
@@ -345,9 +345,9 @@ class GameManager {
         if (DeadByDaylight.playerManager.areTeamsFilled()) return
 
         // 3: Fill teams with other players
-        if (players.stream().filter { it.rolePreference == RolePreference.FILL && !it.isAssignedToTeam() }.count().toInt() > 0) {
+        if (players.stream().filter { it.gameStats.role_preference == RolePreference.FILL && !it.isAssignedToTeam() }.count().toInt() > 0) {
             // There are players that want to fill some role
-            for (gamePlayer in players.stream().filter { it.rolePreference == RolePreference.FILL && !it.isAssignedToTeam() }) {
+            for (gamePlayer in players.stream().filter { it.gameStats.role_preference == RolePreference.FILL && !it.isAssignedToTeam() }) {
                 if (!PlayerManager.killerTeam.isFull()) {
                     DeadByDaylight.playerManager.registerKiller(gamePlayer)
                     players.remove(gamePlayer)

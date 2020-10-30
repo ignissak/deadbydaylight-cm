@@ -24,8 +24,7 @@ abstract class GamePlayer(val player: Player) {
 
     lateinit var gameStats: GameStats
     private val gson: Gson = Gson()
-    // TODO: Save this to the database
-    var rolePreference: RolePreference = RolePreference.FILL
+    // TEST: Save role preference to the database
     var coins: Int = 0
     private var gotCoins: Boolean = false
 
@@ -127,6 +126,8 @@ abstract class GamePlayer(val player: Player) {
     }
 
     fun onQuit() {
+        this.updateStats()
+
         if (this is Survivor) {
             this.npc.destroy()
             CitizensAPI.getNPCRegistry().deregister(this.npc)
@@ -138,7 +139,7 @@ abstract class GamePlayer(val player: Player) {
     }
 
     fun updateStats() {
-        println(gameStats)
+        //println(gameStats)
         CraftLibs.getSqlManager().query("UPDATE dbd_players SET stats = ? WHERE uuid = ?;", gson.toJson(gameStats), player.uniqueId.toString()).whenComplete { _, _ -> Log.info("Updated statistics for ${player.name}.") }
     }
 
@@ -177,7 +178,7 @@ abstract class GamePlayer(val player: Player) {
     }
 
     override fun toString(): String {
-        return "GamePlayer(player=$player, gameStats=$gameStats, rolePreference=$rolePreference, coins=$coins)"
+        return "GamePlayer(player=$player, gameStats=$gameStats, coins=$coins)"
     }
 
 }

@@ -16,7 +16,7 @@ apply plugin: 'idea'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'net.ignissak.deadbydaylight'
-version = '1.0.1'
+version = '1.0.2'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -95,5 +95,5 @@ compileTestKotlin {
 }
 
 shadowJar {
-    archiveName = "DeadByDaylight-${version}.jar"
+    archiveName = "DeadByDaylight.jar"
 }

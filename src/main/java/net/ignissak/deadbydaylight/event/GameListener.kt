@@ -50,7 +50,7 @@ class GameListener : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     fun onClick(event: PlayerInteractEvent) {
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME) {
-            if (event.item?.type == Material.WRITTEN_BOOK) return
+            //if (event.item?.type == Material.WRITTEN_BOOK) return
             if (event.player.isOp && event.player.gameMode == GameMode.CREATIVE) return
             event.isCancelled = true
             return
@@ -180,7 +180,7 @@ class GameListener : Listener {
         // Player caught
 
         gamePlayer.player.inventory.setItem(1, null)
-        Title("§c§lCooldown", "§f6 sekund", 10, 20, 10).send(gamePlayer.player)
+        Title("§c§lCooldown", "§f5 sekund", 10, 20, 10).send(gamePlayer.player)
 
         DeadByDaylight.instance.let {
             Bukkit.getScheduler().runTaskLater(it, Runnable {
@@ -369,7 +369,7 @@ class GameListener : Listener {
 
         println(survivorsDying)
 
-        if (survivorsDying.stream().anyMatch { it?.previousLocation?.distance(gamePlayer.player.location)!! < 2 }) {
+        if (survivorsDying.stream().anyMatch { it?.previousLocation?.distance(gamePlayer.player.location)!! < 1.5 }) {
             val optionalSurvivorToRevive = survivorsDying.stream().filter { it?.player?.location?.distance(gamePlayer.player.location)!! < 2 }.findFirst()
             if (!optionalSurvivorToRevive.isPresent) return
 

@@ -88,7 +88,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         vector.y += .25
 
         player.velocity = vector
-        this.giveSpeed(0)
+        //this.giveSpeed(0)
     }
 
     private fun down(killer: Killer) {
@@ -145,7 +145,7 @@ class Survivor(player: Player) : GamePlayer(player) {
         this.survivalState = SurvivalState.PLAYING
         this.showToOthers()
 
-        player.health = 3.0
+        player.health = 2.0
         player.level = 0
         player.allowFlight = false
         player.isFlying = false

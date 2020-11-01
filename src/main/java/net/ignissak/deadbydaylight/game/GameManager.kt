@@ -334,6 +334,10 @@ class GameManager {
             val killer = players.filter { it.gameStats.role_preference == RolePreference.KILLER }.random()
             DeadByDaylight.playerManager.registerKiller(killer)
             players.remove(killer)
+        } else if (players.stream().anyMatch { it.gameStats.role_preference == RolePreference.FILL }) {
+            val killer = players.filter { it.gameStats.role_preference == RolePreference.FILL }.random()
+            DeadByDaylight.playerManager.registerKiller(killer)
+            players.remove(killer)
         } else {
             val killer = players.random()
             DeadByDaylight.playerManager.registerKiller(killer)

@@ -2,6 +2,7 @@ package net.ignissak.deadbydaylight.game.task
 
 import cz.craftmania.craftcore.spigot.messages.Title
 import net.ignissak.deadbydaylight.DeadByDaylight
+import net.ignissak.deadbydaylight.game.interfaces.SurvivalState
 import net.ignissak.deadbydaylight.game.modules.Survivor
 import net.ignissak.deadbydaylight.utils.remainingTo
 import org.bukkit.Sound
@@ -13,7 +14,10 @@ class SurvivorRevivingSurvivorTask(private val survivorReviving: Survivor, val s
     var remainingHalfSeconds = 8
 
     override fun run() {
-        if (!survivorReviving.player.isSneaking) {
+        if (!survivorReviving.player.isSneaking
+                || survivorToBeRevived.previousLocation?.distance(survivorReviving.player.location)!! > 1.5
+                || survivorReviving.survivalState != SurvivalState.PLAYING
+                || survivorToBeRevived.survivalState != SurvivalState.DYING) {
             Title("§c§lPŘERUŠENO", "", 0, 10, 5).send(survivorReviving.player)
 
             DeadByDaylight.gameManager.revivingTasks.remove(this)

@@ -328,9 +328,14 @@ class GameManager {
     private fun createTeams() {
         // DEBUG: println(PlayerManager.players.values.stream().map { it.toString() }.toArray().joinToString(", ", "[", "]"))
         // 1: Checks if someone has preference for a killer, if so choose randomly from these players
+        // If not, choose random player
         val players = PlayerManager.players.values
         if (players.stream().anyMatch { it.gameStats.role_preference == RolePreference.KILLER }) {
             val killer = players.filter { it.gameStats.role_preference == RolePreference.KILLER }.random()
+            DeadByDaylight.playerManager.registerKiller(killer)
+            players.remove(killer)
+        } else {
+            val killer = players.random()
             DeadByDaylight.playerManager.registerKiller(killer)
             players.remove(killer)
         }

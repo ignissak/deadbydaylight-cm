@@ -4,7 +4,7 @@ api-version: "1.15"
 main: net.ignissak.deadbydaylight.DeadByDaylight
 authors: [iGniSsak]
 load: "POSTWORLD"
-depend: ["CraftCore", "CraftLibs", "CraftEconomy", "WorldGuard", "XoreBoardUtil", "HolographicDisplays", "Citizens"]
+depend: ["CraftCore", "CraftLibs", "CraftEconomy", "WorldGuard", "XoreBoardUtil", "HolographicDisplays", "Citizens", "LibsDisguises"]
 commands:
   forcestart: {}
   role: {}
@@ -16,3 +16,4 @@ commands:
   addgenerator: {}
   addlootchest: {}
   addfireworkspawn: {}
+  setneededgenerators: {}

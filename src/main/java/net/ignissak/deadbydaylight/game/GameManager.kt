@@ -6,6 +6,7 @@
 package net.ignissak.deadbydaylight.game
 
 
+import cz.craftmania.craftcore.spigot.messages.BossBar
 import cz.craftmania.craftcore.spigot.messages.Title
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.interfaces.*
@@ -28,10 +29,11 @@ class GameManager {
     private val minSurvivors = 4
     var isDisabledMoving: Boolean = false
     var startedAt: Long = 0
-    private var endsAt: Long = 0
+    var endsAt: Long = 0
     private var endedAt: Long = 0
     var startingPlayers: Int = 0
     var countdown: Int = 30
+    var gatesOpenedAt: Long = 0
 
     var generators: MutableList<Generator> = mutableListOf()
     var lootChests: MutableList<LootChest> = mutableListOf()
@@ -53,6 +55,9 @@ class GameManager {
     // Default: 5
     // If only 3 survivors: 4
     var neededGenerators = 5
+
+    var bossBar: BossBar? = null
+    var bossBarTask: BossBarTask? = null
 
     // Loading locations for loot chests, generators and drops
     init {
@@ -161,9 +166,6 @@ class GameManager {
         gameState = GameState.INGAME
         isDisabledMoving = true
         this.clearEntities()
-
-        // Increase statistics
-        PlayerManager.players.values.forEach { it.gameStats.games_played += 1 }
 
         // Killer teleporting
         PlayerManager.killerTeam.entries.forEach {
@@ -277,7 +279,7 @@ class GameManager {
                     // TEST: Even when player leaves in 1 minute interval and does nothing - decrease to min of 3
                     if (startingPlayers - 1 == 3) {
                         neededGenerators -= 1
-                        Utils.broadcast(true, "Počet potřebných generátorů je znížen na $neededGenerators, protože hrají jenom 3 survivoři.")
+                        Utils.broadcast(true, "Počet potřebných generátorů je snížen na $neededGenerators, protože hrají jenom 3 survivoři.")
                     }
 
                     PlayerManager.survivorTeam.entries.forEach {
@@ -287,6 +289,9 @@ class GameManager {
                     Bukkit.getOnlinePlayers().forEach {
                         it.level = 0
                     }
+
+                    // Increase statistics
+                    PlayerManager.players.values.forEach { it.gameStats.games_played += 1 }
 
                     locationTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
                     checkTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
@@ -387,7 +392,10 @@ class GameManager {
         else if (PlayerManager.survivorTeam.entries.size == 0)
             endReason = EndReason.SURVIVORS_QUIT
         else if (endsAt < System.currentTimeMillis())
-            endReason = EndReason.TIME_RUN_OUT
+            endReason = if (this.areGatesOpened())
+                EndReason.GATES_CLOSED
+            else
+                EndReason.TIME_RUN_OUT
         else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayers - 2 } && PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
             endReason = EndReason.KILLER_WON
 
@@ -452,6 +460,7 @@ class GameManager {
         TextComponentBuilder("").broadcast()
         TextComponentBuilder("§c§lKONEC HRY", true).broadcast()
         when (endReason) {
+            EndReason.GATES_CLOSED -> TextComponentBuilder("§8[Brány se zavřeli]", true).broadcast()
             EndReason.TIME_RUN_OUT -> TextComponentBuilder("§8[Vypršel čas]", true).broadcast()
             EndReason.SURVIVORS_ESCAPED -> TextComponentBuilder("§8[Survivoři utekli]", true).broadcast()
             EndReason.KILLER_WON -> TextComponentBuilder("§8[Killer všechny zabil]", true).broadcast()
@@ -469,6 +478,8 @@ class GameManager {
 
         Utils.broadcast(true, "Za 15 sekund se restartuje server.")
 
+        gates.forEach { it.close() }
+
         var i = 10
 
         object : BukkitRunnable() {
@@ -485,6 +496,10 @@ class GameManager {
             }
 
         }.runTaskTimer(DeadByDaylight.instance, 0, 20)
+
+        Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
+            Utils.broadcast(true, "Prosíme tě o vyplnení feedbacku v dotazníku: https://igniss.typeform.com/to/f4cMsMo2")
+        }, 40)
 
         DeadByDaylight.instance.let { Bukkit.getScheduler().runTaskLater(it, this::shutDown, 15 * 20) }
     }

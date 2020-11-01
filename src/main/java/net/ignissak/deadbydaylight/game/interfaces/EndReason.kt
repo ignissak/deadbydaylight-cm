@@ -6,6 +6,7 @@ enum class EndReason {
     SURVIVORS_ESCAPED,
     TIME_RUN_OUT,
     KILLER_QUIT,
-    SURVIVORS_QUIT
+    SURVIVORS_QUIT,
+    GATES_CLOSED
 
 }

@@ -66,6 +66,7 @@ class Survivor(player: Player) : GamePlayer(player) {
      * @return True if player was downed
      */
     fun hit(killer: Killer): Boolean {
+        if (this.survivalState != SurvivalState.PLAYING) return false
         if (player.health <= 2.0) {
             down(killer)
             return true
@@ -81,6 +82,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun hook(killer: Killer) {
+        if (this.survivalState != SurvivalState.PLAYING) return
         val vector = killer.player.location.toVector().subtract(player.location.toVector())
         vector.multiply(.6)
         vector.y += .25
@@ -90,6 +92,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     private fun down(killer: Killer) {
+        if (this.survivalState != SurvivalState.PLAYING) return
         killer.gameStats.killer_downs += 1
         killer.playerDowns += 1
 
@@ -138,6 +141,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun revive(revivedBy: Survivor) {
+        if (this.survivalState != SurvivalState.DYING) return // Just in case
         this.survivalState = SurvivalState.PLAYING
         this.showToOthers()
 
@@ -164,6 +168,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun die(killer: Killer) {
+        if (this.survivalState != SurvivalState.DYING) return
         killer.gameStats.killer_kills += 1
         killer.playerKills += 1
         this.survivalState = SurvivalState.SPECTATING
@@ -282,6 +287,7 @@ class Survivor(player: Player) : GamePlayer(player) {
     }
 
     fun giveBlindness() {
+        if (DeadByDaylight.gameManager.gameState != GameState.INGAME || DeadByDaylight.gameManager.isDisabledMoving) return
         if (DeadByDaylight.gameManager.areGatesOpened() || DeadByDaylight.gameManager.areEnoughGeneratorsPowered()) return
         if (survivalState != SurvivalState.PLAYING) return
         if (player.hasPotionEffect(PotionEffectType.SPEED)) return

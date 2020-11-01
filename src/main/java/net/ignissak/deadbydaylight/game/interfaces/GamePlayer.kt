@@ -164,7 +164,9 @@ abstract class GamePlayer(val player: Player) {
     fun giveCoins() {
         if (coins > 0 && !gotCoins) {
             gotCoins = true
-            CraftCoinsAPI.giveCoins(player, coins.toLong())
+            Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
+                CraftCoinsAPI.giveCoins(player, coins.toLong())
+            }, 20)
         }
     }
 

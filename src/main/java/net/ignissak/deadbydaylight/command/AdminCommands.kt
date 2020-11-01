@@ -79,6 +79,14 @@ class AdminCommands : CommandExecutor {
                 DeadByDaylight.instance.config.set("locations.fireworks", DeadByDaylight.gameManager.survivorLocations.stream().map { LocationUtils.formatLocation(it) }.collect(Collectors.toList()))
                 ChatInfo.success(sender, "Byla přidána spawn lokace pro firework.")
             }
+            "setneededgenerators" -> {
+                if (args.isNotEmpty()) {
+                    if (args[0].toIntOrNull() != null) {
+                        DeadByDaylight.gameManager.neededGenerators = args[0].toInt()
+                        ChatInfo.success(sender, "Počet potřebných generátorů byl nastaven na ${args[0]}.")
+                    }
+                }
+            }
         }
         return true
     }

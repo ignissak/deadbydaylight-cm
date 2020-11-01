@@ -57,6 +57,7 @@ class DeadByDaylight : JavaPlugin() {
         getCommand("addgenerator")?.setExecutor(adminCommands)
         getCommand("addlootchest")?.setExecutor(adminCommands)
         getCommand("addfireworkspawn")?.setExecutor(adminCommands)
+        getCommand("setneededgenerators")?.setExecutor(adminCommands)
 
         getCommand("role")?.setExecutor(PlayerCommands())
         getCommand("stats")?.setExecutor(PlayerCommands())
@@ -104,6 +105,7 @@ class DeadByDaylight : JavaPlugin() {
         pluginManager.registerEvents(WorldListener(), this)
         pluginManager.registerEvents(GameListener(), this)
         pluginManager.registerEvents(RegionListener(), this)
+        pluginManager.registerEvents(MoveListener(), this)
     }
 
     companion object {

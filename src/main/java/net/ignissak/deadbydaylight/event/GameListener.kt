@@ -14,11 +14,14 @@ import net.ignissak.deadbydaylight.game.modules.Generator
 import net.ignissak.deadbydaylight.game.modules.Killer
 import net.ignissak.deadbydaylight.game.modules.LootChest
 import net.ignissak.deadbydaylight.game.modules.Survivor
+import net.ignissak.deadbydaylight.game.task.BossBarTask
 import net.ignissak.deadbydaylight.game.task.SurvivorRevivingSurvivorTask
 import net.ignissak.deadbydaylight.utils.TextComponentBuilder
+import net.ignissak.deadbydaylight.utils.Utils
 import net.ignissak.deadbydaylight.utils.getGamePlayer
 import net.ignissak.deadbydaylight.utils.getSurvivor
 import net.minecraft.server.v1_16_R2.PacketPlayOutCollect
+import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer
@@ -395,7 +398,10 @@ class GameListener : Listener {
 
             Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Runnable {
                 DeadByDaylight.gameManager.gates.forEach { it1 -> it1.open() }
+                DeadByDaylight.gameManager.gatesOpenedAt = System.currentTimeMillis()
 
+                // TEST: Decrease game time to 2 minutes
+                // TEST: After 2 minutes shut down doors and end game with time out
                 TextComponentBuilder("").broadcast()
                 TextComponentBuilder("§a§lBrány se otevřely!", true).broadcast()
                 TextComponentBuilder("").broadcast()
@@ -403,6 +409,15 @@ class GameListener : Listener {
                 Bukkit.getOnlinePlayers().forEach {
                     it.playSound(it.location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.AMBIENT, .5F, .5F)
                 }
+
+                if (DeadByDaylight.gameManager.endsAt - System.currentTimeMillis() > 1000 * 120)
+                    // Decrease time
+                    DeadByDaylight.gameManager.endsAt = System.currentTimeMillis() + 1000 * 120
+
+                Utils.broadcast(true, "Za ${DurationFormatUtils.formatDuration(DeadByDaylight.gameManager.endsAt - System.currentTimeMillis(), "mm'm' 'a' ss's'")} se brány zamknou a hra skončí.")
+
+                DeadByDaylight.gameManager.bossBarTask = BossBarTask()
+                DeadByDaylight.gameManager.bossBarTask?.runTaskTimer(DeadByDaylight.instance, 0, 20)
             }, 30 * 20)
         }
     }

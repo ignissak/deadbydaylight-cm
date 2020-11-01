@@ -65,7 +65,7 @@ class BoardManager {
                 hashMap["§8"] = 8
                 hashMap["§fČas: §c${DeadByDaylight.gameManager.getGameTimeFormatted()}"] = 7
                 hashMap["§6"] = 6
-                hashMap["§fSurvivoři: §c${PlayerManager.survivorTeam.entries.stream().filter { it.getSurvivor()?.survivalState != SurvivalState.SPECTATING }.count().toInt()}/${DeadByDaylight.gameManager.startingPlayers - 1}"] = 5
+                hashMap["§fSurvivoři: §c${PlayerManager.survivorTeam.entries.stream().filter { it.getSurvivor()?.survivalState != SurvivalState.SPECTATING }.count().toInt()}/${DeadByDaylight.gameManager.startingPlayersInt - 1}"] = 5
                 hashMap["§fGenerátory:"] = 4
                 hashMap[getActivatedGenerators()] = 3
                 hashMap["§2"] = 2

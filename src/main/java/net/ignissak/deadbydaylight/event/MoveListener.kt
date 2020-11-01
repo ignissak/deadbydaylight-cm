@@ -25,6 +25,17 @@ class MoveListener : Listener {
         if (gamePlayer !is Killer) return
 
         if (!soundMap.containsKey(player)) {
+            soundMap[player] = System.currentTimeMillis() + 250
+            player.world.playSound(player.location, Sound.ENTITY_IRON_GOLEM_STEP, SoundCategory.HOSTILE, 1F, 0F)
+        } else if (soundMap[player]!! < System.currentTimeMillis()) {
+            soundMap[player] = System.currentTimeMillis() + 250
+            player.world.playSound(player.location, Sound.ENTITY_IRON_GOLEM_STEP, SoundCategory.HOSTILE, 1F, 0F)
+        }
+
+
+        /*if (!soundMap.containsKey(player)) {
+            player.world.playSound(player.location, Sound.ENTITY_IRON_GOLEM_STEP, SoundCategory.HOSTILE, 1F, 0F)
+
             soundMap[player] = System.currentTimeMillis() + 2500
             return
         }
@@ -34,6 +45,6 @@ class MoveListener : Listener {
             soundMap[player] = System.currentTimeMillis() + 2500
 
             player.world.playSound(player.location, Sound.ENTITY_IRON_GOLEM_STEP, SoundCategory.HOSTILE, 1F, 0F)
-        }
+        }*/
     }
 }

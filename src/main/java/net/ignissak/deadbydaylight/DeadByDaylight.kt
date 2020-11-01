@@ -46,6 +46,14 @@ class DeadByDaylight : JavaPlugin() {
                 ");\n" +
                 "\n")
 
+        CraftLibs.getSqlManager().query("create table if not exists minigames.dbd_games\n" +
+                "(\n" +
+                "    id        int          null,\n" +
+                "    time      timestamp    null,\n" +
+                "    players   varchar(128) null,\n" +
+                "    endReason varchar(32)  null\n" +
+                ");")
+
         this.registerListeners()
 
         val adminCommands = AdminCommands()

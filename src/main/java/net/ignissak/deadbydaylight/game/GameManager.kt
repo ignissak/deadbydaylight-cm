@@ -8,6 +8,7 @@ package net.ignissak.deadbydaylight.game
 
 import cz.craftmania.craftcore.spigot.messages.BossBar
 import cz.craftmania.craftcore.spigot.messages.Title
+import cz.craftmania.craftlibs.CraftLibs
 import net.ignissak.deadbydaylight.DeadByDaylight
 import net.ignissak.deadbydaylight.game.interfaces.*
 import net.ignissak.deadbydaylight.game.modules.*
@@ -31,7 +32,8 @@ class GameManager {
     var startedAt: Long = 0
     var endsAt: Long = 0
     private var endedAt: Long = 0
-    var startingPlayers: Int = 0
+    var startingPlayersInt: Int = 0
+    var startingPlayers: MutableList<String> = mutableListOf()
     var countdown: Int = 30
     var gatesOpenedAt: Long = 0
 
@@ -162,7 +164,8 @@ class GameManager {
 
         startedAt = System.currentTimeMillis()
         endsAt = System.currentTimeMillis() + (10 * 60 * 1000) + (15 * 1000)
-        startingPlayers = PlayerManager.players.size
+        startingPlayersInt = PlayerManager.players.size
+        startingPlayers = PlayerManager.players.keys.toMutableList()
         gameState = GameState.INGAME
         isDisabledMoving = true
         this.clearEntities()
@@ -203,6 +206,8 @@ class GameManager {
         // Game items
         PlayerManager.players.values.forEach {
             it.giveStartingItems()
+
+            it.player.playSound(it.player.location, Sound.AMBIENT_CAVE, 1F, 0F)
         }
 
         // Adding loot to loot chests
@@ -277,7 +282,7 @@ class GameManager {
                     Utils.broadcast(true, "Hra začíná!")
 
                     // TEST: Even when player leaves in 1 minute interval and does nothing - decrease to min of 3
-                    if (startingPlayers - 1 == 3) {
+                    if (startingPlayersInt - 1 == 3) {
                         neededGenerators -= 1
                         Utils.broadcast(true, "Počet potřebných generátorů je snížen na $neededGenerators, protože hrají jenom 3 survivoři.")
                     }
@@ -297,7 +302,7 @@ class GameManager {
                     checkTask.runTaskTimer(DeadByDaylight.instance, 0, 20)
 
                     Log.success("Game started!")
-                    Log.success("Starting players: $startingPlayers")
+                    Log.success("Starting players: $startingPlayersInt")
 
                     this.cancel()
                     return
@@ -396,7 +401,7 @@ class GameManager {
                 EndReason.GATES_CLOSED
             else
                 EndReason.TIME_RUN_OUT
-        else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayers - 2 } && PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
+        else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayersInt - 2 } && PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
             endReason = EndReason.KILLER_WON
 
         if (endReason == null)
@@ -427,6 +432,8 @@ class GameManager {
         } catch (ignored: IllegalStateException) {
         }
 
+        CraftLibs.getSqlManager().query("INSERT INTO minigames.dbd_games (players, endReason) VALUES (?, ?);", startingPlayers.joinToString(separator = ",", prefix = "[", postfix = "]"), endReason?.name)
+
         Bukkit.getScheduler().cancelTask(DeadByDaylight.boardUpdateTask.taskId)
         DeadByDaylight.boardManager.updateAllPlayers()
 
@@ -448,6 +455,7 @@ class GameManager {
                 if (it.survivalState == SurvivalState.PLAYING) {
                     it.gameStats.playtime += System.currentTimeMillis() - startedAt
                 }
+                it.removeBlindness()
             }
             it.giveCoins()
 

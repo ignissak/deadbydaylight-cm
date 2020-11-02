@@ -50,7 +50,13 @@ class GameListener : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     fun onClick(event: PlayerInteractEvent) {
         if (DeadByDaylight.gameManager.gameState != GameState.INGAME) {
-            //if (event.item?.type == Material.WRITTEN_BOOK) return
+            if (event.clickedBlock != null) {
+                if (event.clickedBlock!!.type.isInteractable) {
+                    event.isCancelled = true
+                    return
+                }
+            }
+            if (event.item?.type == Material.WRITTEN_BOOK) return
             if (event.player.isOp && event.player.gameMode == GameMode.CREATIVE) return
             event.isCancelled = true
             return

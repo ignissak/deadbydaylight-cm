@@ -138,10 +138,17 @@ class GameManager {
                     return
                 }
 
-                Bukkit.getOnlinePlayers().forEach { it.level = 0 }
+                if (Bukkit.getOnlinePlayers().size > 5) {
+                    // How this happens? Who knows.
+                    Bukkit.getOnlinePlayers().random().kickPlayer("§cTento server je plný.")
+                }
+
+                Bukkit.getOnlinePlayers().forEach { it.level = countdown }
 
                 if (countdown <= 0) {
                     startGame()
+                    Bukkit.getOnlinePlayers().forEach { it.level = 0 }
+
                     this.cancel()
                     return
                 } else if (countdown <= 5) {
@@ -410,7 +417,9 @@ class GameManager {
                 EndReason.GATES_CLOSED
             else
                 EndReason.TIME_RUN_OUT
-        else if (PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayersInt - 2 } && PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
+        else if ((PlayerManager.killerTeam.entries.any { it.getKiller()?.playerKills!! >= startingPlayersInt - 2 }
+                && PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
+                        || PlayerManager.survivorTeam.entries.none { it.getSurvivor()?.survivalState == SurvivalState.PLAYING })
             endReason = EndReason.KILLER_WON
 
         if (endReason == null)
@@ -522,7 +531,9 @@ class GameManager {
     }
 
     private fun shutDown() {
-        Bukkit.shutdown()
+        Bukkit.getOnlinePlayers().forEach { it.kickPlayer("Tento server se restartuje.") }
+
+        Bukkit.getScheduler().runTaskLater(DeadByDaylight.instance, Bukkit::shutdown, 200)
     }
 
     fun playerLeftIngame(survivor: Survivor) {

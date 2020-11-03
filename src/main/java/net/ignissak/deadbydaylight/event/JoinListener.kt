@@ -37,6 +37,12 @@ class JoinListener : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
+
+        if (Bukkit.getOnlinePlayers().size == 6) {
+            player.kickPlayer("§cTento server je plný.")
+            return
+        }
+
         DeadByDaylight.playerManager.registerPlayer(player)
 
         event.joinMessage = "${DeadByDaylight.prefix}${player.name} se §apřipojil §7(${Bukkit.getOnlinePlayers().size}/5)"

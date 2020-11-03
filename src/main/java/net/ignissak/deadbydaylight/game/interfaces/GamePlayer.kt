@@ -35,7 +35,7 @@ abstract class GamePlayer(val player: Player) {
                     Log.info("Inserting data for ${player.name}")
 
                     this.gameStats = GameStats()
-                    CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname) VALUES (?, ?);", player.uniqueId.toString(), player.name)
+                    CraftLibs.getSqlManager().query("INSERT INTO dbd_players (uuid, nickname, stats) VALUES (?, ?, ?);", player.uniqueId.toString(), player.name, gson.toJson(this.gameStats))
                 } else {
                     Log.info("Loading data for ${player.name}")
                     this.gameStats = gson.fromJson(dbRows[0].getString("stats"), GameStats::class.java)
@@ -44,6 +44,7 @@ abstract class GamePlayer(val player: Player) {
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             Log.fatal("Could not fetch data for ${player.name}, player was disconnected.")
             player.kickPlayer("Nepodařilo se získat tvé data z databáze, byl jsi vyhozen.")
         }
@@ -125,7 +126,8 @@ abstract class GamePlayer(val player: Player) {
     }
 
     fun onQuit() {
-        this.updateStats()
+        if (DeadByDaylight.gameManager.gameState != GameState.ENDING)
+            this.updateStats()
 
         if (this is Survivor) {
             this.npc.destroy()
@@ -139,7 +141,7 @@ abstract class GamePlayer(val player: Player) {
 
     fun updateStats() {
         //println(gameStats)
-        CraftLibs.getSqlManager().query("UPDATE dbd_players SET stats = ? WHERE uuid = ?;", gson.toJson(gameStats), player.uniqueId.toString()).whenComplete { _, _ -> Log.info("Updated statistics for ${player.name}.") }
+        CraftLibs.getSqlManager().query("UPDATE dbd_players SET stats = ? WHERE uuid = ?;", gson.toJson(this.gameStats), player.uniqueId.toString()).thenAccept { Log.info("Updated statistics for ${player.name}.") }
     }
 
     abstract fun giveStartingItems()

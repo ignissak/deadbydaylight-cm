@@ -19,9 +19,16 @@ class SurvivorDyingTask(private val survivor: Survivor) : BukkitRunnable() {
             this.cancel()
             return
         }
+
         if (!DeadByDaylight.playerManager.isAnySurvivorAlive()) {
             remainingTime = 1
         }
+
+        if (PlayerManager.killerTeam.size == 0) {
+            this.cancel()
+            return
+        }
+
         ParticleEffect.REDSTONE.display(null, survivor.npc.entity.location.clone().add(.0, 1.5, .0), Color.RED, 16.0, .1F, .1F, .1F, .3F, 10)
         Title("§c§lUMÍRÁŠ!", "§fOstatní tě musí zachránit.", 0, 40, 0).send(survivor.player)
 
